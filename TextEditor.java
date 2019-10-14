@@ -1,10 +1,13 @@
 import javax.imageio.ImageIO;
 import javax.swing.*;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.text.Document;
 import java.awt.*;
+import java.awt.desktop.OpenFilesEvent;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
+import java.awt.print.*;
 import java.io.File;
 import java.util.Arrays;
 import java.util.List;
@@ -27,6 +30,7 @@ public class TextEditor extends JFrame implements ActionListener
     JMenu fileMenu, editMenu, insertMenu, helpMenu;
     JMenuBar menuBar;
     Color settedColor;
+    PrinterJob printerJob;
 
     private static final List<String> FONT_LIST = Arrays.asList(new String [] {"Arial", "Calibri", "Cambria", "Courier New", "Comic Sans MS", "Dialog", "Georgia", "Helevetica", "Lucida Sans", "Monospaced", "Tahoma", "Times New Roman", "Verdana"});
     private static final String[] FONT_SIZES = {"Rozmiar","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","20","22","23","24","25","26","27","28","29","30"};
@@ -80,7 +84,16 @@ public class TextEditor extends JFrame implements ActionListener
         {
             public void actionPerformed(ActionEvent ev)
             {
-
+                fileOpener = new JFileChooser();
+                FileNameExtensionFilter fileExtensionFilter = new FileNameExtensionFilter(
+                        "Pliki tekstowe", "txt","doc","docs","odt","wpd");
+                fileOpener.addChoosableFileFilter(fileExtensionFilter);
+                fileOpener.setDialogTitle("Wybierz plik do otwarcia");
+                int returnValue = fileOpener.showOpenDialog(null);
+                if(returnValue == JFileChooser.APPROVE_OPTION)
+                {
+                    //fileOpener.getSelectedFile().getAbsolutePath());
+                }
             }
         });
         JMenuItem lastFilesItem = new JMenuItem("Ostatnio otwierane");
@@ -128,7 +141,82 @@ public class TextEditor extends JFrame implements ActionListener
         {
             public void actionPerformed(ActionEvent ev)
             {
+                printerJob = new PrinterJob() {
+                    @Override
+                    public void setPrintable(Printable printable) {
 
+                    }
+
+                    @Override
+                    public void setPrintable(Printable printable, PageFormat pageFormat) {
+
+                    }
+
+                    @Override
+                    public void setPageable(Pageable pageable) throws NullPointerException {
+
+                    }
+
+                    @Override
+                    public boolean printDialog() throws HeadlessException {
+                        return false;
+                    }
+
+                    @Override
+                    public PageFormat pageDialog(PageFormat pageFormat) throws HeadlessException {
+                        return null;
+                    }
+
+                    @Override
+                    public PageFormat defaultPage(PageFormat pageFormat) {
+                        return null;
+                    }
+
+                    @Override
+                    public PageFormat validatePage(PageFormat pageFormat) {
+                        return null;
+                    }
+
+                    @Override
+                    public void print() throws PrinterException {
+
+                    }
+
+                    @Override
+                    public void setCopies(int i) {
+
+                    }
+
+                    @Override
+                    public int getCopies() {
+                        return 0;
+                    }
+
+                    @Override
+                    public String getUserName() {
+                        return null;
+                    }
+
+                    @Override
+                    public void setJobName(String s) {
+
+                    }
+
+                    @Override
+                    public String getJobName() {
+                        return null;
+                    }
+
+                    @Override
+                    public void cancel() {
+
+                    }
+
+                    @Override
+                    public boolean isCancelled() {
+                        return false;
+                    }
+                };
             }
         });
         JMenuItem exitItem = new JMenuItem("Zamknij");
