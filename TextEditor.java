@@ -1,14 +1,15 @@
-import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
-import javax.swing.text.Document;
+import javax.swing.text.SimpleAttributeSet;
+import javax.swing.text.StyleConstants;
+import javax.swing.text.StyledEditorKit;
 import java.awt.*;
-import java.awt.desktop.OpenFilesEvent;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.KeyEvent;
+import java.awt.event.*;
 import java.awt.print.*;
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Vector;
@@ -26,15 +27,16 @@ public class TextEditor extends JFrame implements ActionListener
     private  JButton newButton, openButton, saveButton, printButton, insertImageButton;
     private JScrollPane scrollPanel;
     private JTextPane textPane;
-    private JComboBox fontSizes, fontFamily;
+    private JComboBox fontSizes, fontFamilyCmbBox;
+    private String fileName;
     JMenu fileMenu, editMenu, insertMenu, helpMenu;
     JMenuBar menuBar;
     Color settedColor;
     PrinterJob printerJob;
 
     private static final List<String> FONT_LIST = Arrays.asList(new String [] {"Arial", "Calibri", "Cambria", "Courier New", "Comic Sans MS", "Dialog", "Georgia", "Helevetica", "Lucida Sans", "Monospaced", "Tahoma", "Times New Roman", "Verdana"});
-    private static final String[] FONT_SIZES = {"Rozmiar","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","20","22","23","24","25","26","27","28","29","30"};
-    private static final int DEFAULT_FONT_SIZE = 14;
+    private static final String[] FONT_SIZES = {"7","8","9","10","11","12","13","14","15","16","17","18","19","20","22","23","24","25","26","27","28","29","30","31","32","33","34","35","36","37","38","39","40","41","42","43","44","45","46","47","48","49","50"};
+    private static final int DEFAULT_FONT_SIZE = 10;
 
     Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
 
@@ -54,7 +56,7 @@ public class TextEditor extends JFrame implements ActionListener
     TextEditor()
     {
         frame = new JFrame();
-        frame.setTitle("Office Notes");
+        frame.setTitle("OfficeNotes");
         frame.setResizable(true);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setSize(screenSize.width,screenSize.height-30);
@@ -63,7 +65,14 @@ public class TextEditor extends JFrame implements ActionListener
         frame.setLocationRelativeTo(null);
 
         textPane = new JTextPane();
+        textPane.setMinimumSize(new Dimension(600,500));
         scrollPanel = new JScrollPane(textPane);
+
+
+        SimpleAttributeSet attr = new SimpleAttributeSet();
+        StyleConstants.setFontSize(attr,DEFAULT_FONT_SIZE);
+        textPane.setCharacterAttributes(attr, false);
+
 
         menuBar = new JMenuBar();
         menuBar.setBackground(new Color(40,122,252));
@@ -85,14 +94,26 @@ public class TextEditor extends JFrame implements ActionListener
             public void actionPerformed(ActionEvent ev)
             {
                 fileOpener = new JFileChooser();
-                FileNameExtensionFilter fileExtensionFilter = new FileNameExtensionFilter(
-                        "Pliki tekstowe", "txt","doc","docs","odt","wpd");
+                FileNameExtensionFilter fileExtensionFilter = new FileNameExtensionFilter("Pliki tekstowe", "txt","doc","docs","odt","wpd");
                 fileOpener.addChoosableFileFilter(fileExtensionFilter);
                 fileOpener.setDialogTitle("Wybierz plik do otwarcia");
                 int returnValue = fileOpener.showOpenDialog(null);
                 if(returnValue == JFileChooser.APPROVE_OPTION)
                 {
-                    //fileOpener.getSelectedFile().getAbsolutePath());
+                    fileName=fileOpener.getSelectedFile().getAbsolutePath();
+
+                    try
+                    {
+                        FileReader reader = new FileReader(fileName);
+                        BufferedReader bufferedReader = new BufferedReader(reader);
+                        textPane.read(bufferedReader,null);
+                        bufferedReader.close();
+                        textPane.requestFocus();
+                    }
+                    catch (Exception error)
+                    {
+                        JOptionPane.showMessageDialog(null,error);
+                    }
                 }
             }
         });
@@ -224,7 +245,7 @@ public class TextEditor extends JFrame implements ActionListener
         {
             public void actionPerformed(ActionEvent ev)
             {
-
+                System.exit(0);
             }
         });
 
@@ -337,12 +358,26 @@ public class TextEditor extends JFrame implements ActionListener
 
         helpMenu = new JMenu("Pomoc");
 
-        JMenuItem dealWithItem = new JMenuItem("Obsługa programu");
-        dealWithItem.addActionListener(this);
+        JMenuItem howToUseItem = new JMenuItem("Obsługa programu");
+        howToUseItem.addActionListener(new ActionListener()
+        {
+            @Override
+            public void actionPerformed(ActionEvent e)
+            {
+                JOptionPane.showMessageDialog(frame,"Na szczycie okna znajduje się menu obsługi programu - możesz tam utworzyć nowy plik, otworzyć inny plik, zapisać, wydrukować etc.\nIkony najważniejszych funkcji znajdują się pod menu.\nWybierz następnie swoją ulubioną czcionkę, kolor i wpadnij w wir kreatywnej pracy pisarza!", "Jak używać programu OfficeNotes",JOptionPane.INFORMATION_MESSAGE);
+            }
+        });
         JMenuItem aboutAuthorItem = new JMenuItem("O autorze");
-        aboutAuthorItem.addActionListener(this);
+        aboutAuthorItem.addActionListener(new ActionListener()
+        {
+            @Override
+            public void actionPerformed(ActionEvent e)
+            {
+                JOptionPane.showMessageDialog(frame,"Autorem programu jest Dawid Kańtoch. \nOfficeNotes jest darmowym programem, dostępnym dla wszystkich bez opłat.\nPobieranie opłat za użytkowanie wzbronione.\nWszelkie prawa zastrzeżone 2019","Autor programu OfficeNotes",JOptionPane.INFORMATION_MESSAGE);
+            }
+        });
 
-        helpMenu.add(dealWithItem);
+        helpMenu.add(howToUseItem);
         helpMenu.add(aboutAuthorItem);
 
         menuBar.add(fileMenu);
@@ -354,12 +389,24 @@ public class TextEditor extends JFrame implements ActionListener
 
         Vector<String> editorFonts = getEditorFonts();
         editorFonts.add(0,"Czcionka");
-        fontFamily = new JComboBox<String>(editorFonts);
-        fontFamily.setEditable(false);
-        //fontFamily.addItemListener(new FontFamilyItemListiner());
+        fontFamilyCmbBox = new JComboBox<String>(editorFonts);
+        fontFamilyCmbBox.setEditable(false);
+        fontFamilyCmbBox.addItemListener(new FontFamilyItemListener());
 
         fontSizes = new JComboBox<String>(FONT_SIZES);
+        fontSizes.setSelectedIndex(3);
         fontSizes.setEditable(false);
+        fontSizes.addActionListener(new ActionListener()
+        {
+            @Override
+            public void actionPerformed(ActionEvent e)
+            {
+                SimpleAttributeSet attr = new SimpleAttributeSet();
+                StyleConstants.setFontSize(attr,fontSizes.getSelectedIndex()+7);
+                textPane.setCharacterAttributes(attr,false);
+                textPane.requestFocusInWindow();
+            }
+        });
 
         panelUp = new JPanel(new FlowLayout(FlowLayout.LEFT));
         panelUp.setBackground(new Color(110,160,240));
@@ -413,7 +460,7 @@ public class TextEditor extends JFrame implements ActionListener
 
         panelDown = new JPanel();
         panelDown.setBackground(new Color(110,160,240));
-        panelDown.add(fontFamily);
+        panelDown.add(fontFamilyCmbBox);
         panelDown.add(new JSeparator(SwingConstants.VERTICAL));
         panelDown.add(fontSizes);
         panelDown.add(new JSeparator(SwingConstants.VERTICAL));
@@ -471,15 +518,62 @@ public class TextEditor extends JFrame implements ActionListener
 
         if(source==openButton)
         {
-            //fileOpener.setDialogType();
+            fileOpener = new JFileChooser();
+            FileNameExtensionFilter fileExtensionFilter = new FileNameExtensionFilter("Pliki tekstowe", "txt","doc","docs","odt","wpd");
+            fileOpener.addChoosableFileFilter(fileExtensionFilter);
+            fileOpener.setDialogTitle("Wybierz plik do otwarcia");
+            int returnValue = fileOpener.showOpenDialog(null);
+            if(returnValue == JFileChooser.APPROVE_OPTION)
+            {
+                fileName=fileOpener.getSelectedFile().getAbsolutePath();
+
+                try
+                {
+                    FileReader reader = new FileReader(fileName);
+                    BufferedReader bufferedReader = new BufferedReader(reader);
+                    textPane.read(bufferedReader,null);
+                    bufferedReader.close();
+                    textPane.requestFocus();
+                }
+                catch (Exception error)
+                {
+                   JOptionPane.showMessageDialog(null,error);
+                }
+            }
         }
         if(source==fontColorButton)
         {
-            Color initialcolor = Color.BLACK;
-            JColorChooser colorChooser = new JColorChooser();
-            colorChooser.showDialog(this,"Wybierz kolor",initialcolor);
-            settedColor=colorChooser.getColor();
-            textPane.setCaretColor(settedColor);
+            Color initialcolor = JColorChooser.showDialog(this,"Wybierz kolor",Color.BLACK);
+            if(initialcolor == null)
+            {
+                textPane.requestFocusInWindow();
+            }
+            SimpleAttributeSet attr = new SimpleAttributeSet();
+            StyleConstants.setForeground(attr,initialcolor);
+            textPane.setCharacterAttributes(attr,false);
+            textPane.requestFocusInWindow();
+            fontColorButton.setBackground(initialcolor);
+            fontColorButton.setForeground(Color.BLACK);
         }
     }
+    private class FontFamilyItemListener implements ItemListener {
+
+        @Override
+        public void itemStateChanged(ItemEvent e) {
+
+            if ((e.getStateChange() != ItemEvent.SELECTED) ||
+                    (fontFamilyCmbBox.getSelectedIndex() == 0)) {
+
+                return;
+            }
+
+            String fontFamily = (String) e.getItem();
+            fontFamilyCmbBox.setAction(new StyledEditorKit.FontFamilyAction(fontFamily, fontFamily));
+            fontFamilyCmbBox.setSelectedIndex(0); // initialize to (default) select
+            textPane.requestFocusInWindow();
+        }
+    }
+
 }
+
+
