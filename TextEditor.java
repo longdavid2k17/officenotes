@@ -1,3 +1,8 @@
+import com.lowagie.text.Document;
+import com.lowagie.text.DocumentException;
+import com.lowagie.text.Paragraph;
+import com.lowagie.text.pdf.PdfDocument;
+import com.lowagie.text.pdf.PdfWriter;
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.text.SimpleAttributeSet;
@@ -6,13 +11,12 @@ import javax.swing.text.StyledEditorKit;
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.print.*;
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Vector;
+
+
 
 public class TextEditor extends JFrame implements ActionListener
 {
@@ -29,6 +33,7 @@ public class TextEditor extends JFrame implements ActionListener
     private JTextPane textPane;
     private JComboBox fontSizes, fontFamilyCmbBox;
     private String fileName;
+    private int styleIndex=0;
     JMenu fileMenu, editMenu, insertMenu, helpMenu;
     JMenuBar menuBar;
     Color settedColor;
@@ -67,7 +72,6 @@ public class TextEditor extends JFrame implements ActionListener
         textPane = new JTextPane();
         textPane.setMinimumSize(new Dimension(600,500));
         scrollPanel = new JScrollPane(textPane);
-
 
         SimpleAttributeSet attr = new SimpleAttributeSet();
         StyleConstants.setFontSize(attr,DEFAULT_FONT_SIZE);
@@ -138,7 +142,21 @@ public class TextEditor extends JFrame implements ActionListener
         {
             public void actionPerformed(ActionEvent ev)
             {
-
+                saveDialog = new JFileChooser();
+                if (saveDialog.showSaveDialog(frame) == JFileChooser.APPROVE_OPTION)
+                {
+                    File file = saveDialog.getSelectedFile();
+                    try
+                    {
+                        BufferedWriter writer = new BufferedWriter(new FileWriter(file));
+                        writer.write(textPane.getText());
+                        writer.close();
+                    }
+                    catch (IOException e)
+                    {
+                        e.printStackTrace();
+                    }
+                }
             }
         });
         JMenuItem saveCopyItem = new JMenuItem("Zapisz kopię");
@@ -154,7 +172,33 @@ public class TextEditor extends JFrame implements ActionListener
         {
             public void actionPerformed(ActionEvent ev)
             {
+                saveDialog = new JFileChooser();
+                if (saveDialog.showSaveDialog(frame) == JFileChooser.APPROVE_OPTION)
+                {
+                    File file = saveDialog.getSelectedFile();
 
+                    Document document = new Document();
+                    try
+                    {
+                        PdfWriter writer = PdfWriter.getInstance(document, new FileOutputStream(file.getAbsolutePath()));
+                        document.open();
+                        document.addCreationDate();
+
+                        document.addAuthor(System.getProperty("user.name"));
+                        document.add(new Paragraph(textPane.getText()));
+                        document.close();
+                        writer.close();
+                    }
+                    catch (IOException e)
+                    {
+                        e.printStackTrace();
+                    }
+
+                    catch (DocumentException e)
+                    {
+                        e.printStackTrace();
+                    }
+                }
             }
         });
         JMenuItem printItem = new JMenuItem("Drukuj...");
@@ -447,16 +491,48 @@ public class TextEditor extends JFrame implements ActionListener
         fontColorButton.addActionListener(this);
 
         alignLeftButton = new JButton(alignLeftImage);
-        alignLeftButton.addActionListener(this);
+        alignLeftButton.addActionListener(new ActionListener()
+        {
+            @Override
+            public void actionPerformed(ActionEvent e)
+            {
+                StyleConstants.setAlignment(attr , StyleConstants.ALIGN_LEFT);
+                textPane.setParagraphAttributes(attr,true);
+            }
+        });
 
         alignCenterButton = new JButton(alignCenterImage);
-        alignCenterButton.addActionListener(this);
+        alignCenterButton.addActionListener(new ActionListener()
+        {
+            @Override
+            public void actionPerformed(ActionEvent e)
+            {
+                StyleConstants.setAlignment(attr , StyleConstants.ALIGN_CENTER);
+                textPane.setParagraphAttributes(attr,true);
+            }
+        });
 
         justifyButton = new JButton(jutifyImage);
-        justifyButton.addActionListener(this);
+        justifyButton.addActionListener(new ActionListener()
+        {
+            @Override
+            public void actionPerformed(ActionEvent e)
+            {
+                StyleConstants.setAlignment(attr , StyleConstants.ALIGN_JUSTIFIED);
+                textPane.setParagraphAttributes(attr,true);
+            }
+        });
 
         allignRightButton = new JButton(alignRightImage);
-        allignRightButton.addActionListener(this);
+        allignRightButton.addActionListener(new ActionListener()
+        {
+            @Override
+            public void actionPerformed(ActionEvent e)
+            {
+                StyleConstants.setAlignment(attr , StyleConstants.ALIGN_RIGHT);
+                textPane.setParagraphAttributes(attr,true);
+            }
+        });
 
         panelDown = new JPanel();
         panelDown.setBackground(new Color(110,160,240));
@@ -556,13 +632,16 @@ public class TextEditor extends JFrame implements ActionListener
             fontColorButton.setForeground(Color.BLACK);
         }
     }
-    private class FontFamilyItemListener implements ItemListener {
+    private class FontFamilyItemListener implements ItemListener
+    {
 
         @Override
-        public void itemStateChanged(ItemEvent e) {
+        public void itemStateChanged(ItemEvent e)
+        {
 
             if ((e.getStateChange() != ItemEvent.SELECTED) ||
-                    (fontFamilyCmbBox.getSelectedIndex() == 0)) {
+                    (fontFamilyCmbBox.getSelectedIndex() == 0))
+            {
 
                 return;
             }
