@@ -70,13 +70,16 @@ public class TextEditor extends JFrame implements ActionListener
         frame.setLocationRelativeTo(null);
 
         textPane = new JTextPane();
-        textPane.setMinimumSize(new Dimension(600,500));
+        //textPane.setMinimumSize(new Dimension(600,500));
+        textPane.setBounds(300,0,500,800);
         scrollPanel = new JScrollPane(textPane);
+        scrollPanel.setPreferredSize(new Dimension(1300,800));
 
         SimpleAttributeSet attr = new SimpleAttributeSet();
         StyleConstants.setFontSize(attr,DEFAULT_FONT_SIZE);
         textPane.setCharacterAttributes(attr, false);
 
+        frame.getContentPane().add(scrollPanel,BorderLayout.CENTER);
 
         menuBar = new JMenuBar();
         menuBar.setBackground(new Color(40,122,252));
@@ -206,82 +209,14 @@ public class TextEditor extends JFrame implements ActionListener
         {
             public void actionPerformed(ActionEvent ev)
             {
-                printerJob = new PrinterJob() {
-                    @Override
-                    public void setPrintable(Printable printable) {
-
-                    }
-
-                    @Override
-                    public void setPrintable(Printable printable, PageFormat pageFormat) {
-
-                    }
-
-                    @Override
-                    public void setPageable(Pageable pageable) throws NullPointerException {
-
-                    }
-
-                    @Override
-                    public boolean printDialog() throws HeadlessException {
-                        return false;
-                    }
-
-                    @Override
-                    public PageFormat pageDialog(PageFormat pageFormat) throws HeadlessException {
-                        return null;
-                    }
-
-                    @Override
-                    public PageFormat defaultPage(PageFormat pageFormat) {
-                        return null;
-                    }
-
-                    @Override
-                    public PageFormat validatePage(PageFormat pageFormat) {
-                        return null;
-                    }
-
-                    @Override
-                    public void print() throws PrinterException {
-
-                    }
-
-                    @Override
-                    public void setCopies(int i) {
-
-                    }
-
-                    @Override
-                    public int getCopies() {
-                        return 0;
-                    }
-
-                    @Override
-                    public String getUserName() {
-                        return null;
-                    }
-
-                    @Override
-                    public void setJobName(String s) {
-
-                    }
-
-                    @Override
-                    public String getJobName() {
-                        return null;
-                    }
-
-                    @Override
-                    public void cancel() {
-
-                    }
-
-                    @Override
-                    public boolean isCancelled() {
-                        return false;
-                    }
-                };
+                try
+                {
+                    textPane.print();
+                }
+                catch (PrinterException e)
+                {
+                    e.printStackTrace();
+                }
             }
         });
         JMenuItem exitItem = new JMenuItem("Zamknij");
@@ -465,7 +400,21 @@ public class TextEditor extends JFrame implements ActionListener
         saveButton.addActionListener(this);
 
         printButton = new JButton(imagePrint);
-        printButton.addActionListener(this);
+        printButton.addActionListener(new ActionListener()
+        {
+            @Override
+            public void actionPerformed(ActionEvent e)
+            {
+                try
+                {
+                    textPane.print();
+                }
+                catch (PrinterException e1)
+                {
+                    e1.printStackTrace();
+                }
+            }
+        });
 
         insertImageButton = new JButton(imageInsertImage);
         insertImageButton.addActionListener(this);
