@@ -34,10 +34,10 @@ public class TextEditor extends JFrame implements ActionListener
     private JComboBox fontSizes, fontFamilyCmbBox;
     private String fileName;
     private int styleIndex=0;
+    private boolean isBold = false;
     JMenu fileMenu, editMenu, insertMenu, helpMenu;
     JMenuBar menuBar;
     Color settedColor;
-    PrinterJob printerJob;
 
     private static final List<String> FONT_LIST = Arrays.asList(new String [] {"Arial", "Calibri", "Cambria", "Courier New", "Comic Sans MS", "Dialog", "Georgia", "Helevetica", "Lucida Sans", "Monospaced", "Tahoma", "Times New Roman", "Verdana"});
     private static final String[] FONT_SIZES = {"7","8","9","10","11","12","13","14","15","16","17","18","19","20","22","23","24","25","26","27","28","29","30","31","32","33","34","35","36","37","38","39","40","41","42","43","44","45","46","47","48","49","50","51","52","53","54","55","56","57","58","59","60"};
@@ -146,6 +146,8 @@ public class TextEditor extends JFrame implements ActionListener
             public void actionPerformed(ActionEvent ev)
             {
                 saveDialog = new JFileChooser();
+                FileNameExtensionFilter textExtenensions = new FileNameExtensionFilter("Pliki tekstowe", "txt");
+                saveDialog.addChoosableFileFilter(textExtenensions);
                 if (saveDialog.showSaveDialog(frame) == JFileChooser.APPROVE_OPTION)
                 {
                     File file = saveDialog.getSelectedFile();
@@ -176,6 +178,8 @@ public class TextEditor extends JFrame implements ActionListener
             public void actionPerformed(ActionEvent ev)
             {
                 saveDialog = new JFileChooser();
+                FileNameExtensionFilter pdfExtension = new FileNameExtensionFilter("Pliki PDF", "pdf");
+                saveDialog.addChoosableFileFilter(pdfExtension);
                 if (saveDialog.showSaveDialog(frame) == JFileChooser.APPROVE_OPTION)
                 {
                     File file = saveDialog.getSelectedFile();
@@ -264,7 +268,7 @@ public class TextEditor extends JFrame implements ActionListener
         {
             public void actionPerformed(ActionEvent ev)
             {
-
+                textPane.cut();
             }
         });
         JMenuItem copyItem = new JMenuItem("Kopiuj");
@@ -272,7 +276,7 @@ public class TextEditor extends JFrame implements ActionListener
         {
             public void actionPerformed(ActionEvent ev)
             {
-
+                textPane.copy();
             }
         });
         JMenuItem pasteItem = new JMenuItem("Wklej");
@@ -280,7 +284,7 @@ public class TextEditor extends JFrame implements ActionListener
         {
             public void actionPerformed(ActionEvent ev)
             {
-
+                textPane.paste();
             }
         });
         JMenuItem markAllItem = new JMenuItem("Zaznacz wszystko");
@@ -288,7 +292,7 @@ public class TextEditor extends JFrame implements ActionListener
         {
             public void actionPerformed(ActionEvent ev)
             {
-
+                textPane.selectAll();
             }
         });
         JMenuItem findItem = new JMenuItem("Znajdź");
@@ -297,6 +301,19 @@ public class TextEditor extends JFrame implements ActionListener
             public void actionPerformed(ActionEvent ev)
             {
 
+                Find simpleFindAction = new Find();
+                simpleFindAction.show();
+                int tempTextLenght = textPane.getText().length();
+                String textCopied = textPane.getText();
+                String searchedFrase = simpleFindAction.getString();
+
+                /*
+                for(int i=0;i<tempTextLenght;i++)
+                {
+                    if(textCopied[i]==searchedFrase[0])
+                }
+                */
+                //JOptionPane.showMessageDialog(frame,"Poszukiwana fraza: "+simpleFindAction.getString(),"Fraza",JOptionPane.INFORMATION_MESSAGE);
             }
         });
         JMenuItem findAndReplaceItem = new JMenuItem("Znajdź i zastąp");
@@ -352,7 +369,7 @@ public class TextEditor extends JFrame implements ActionListener
             @Override
             public void actionPerformed(ActionEvent e)
             {
-                JOptionPane.showMessageDialog(frame,"Autorem programu jest Dawid Kańtoch. \nOfficeNotes jest darmowym programem, dostępnym dla wszystkich bez opłat.\nPobieranie opłat za użytkowanie wzbronione.\nWszelkie prawa zastrzeżone 2019","Autor programu OfficeNotes",JOptionPane.INFORMATION_MESSAGE);
+                JOptionPane.showMessageDialog(frame,"Autorem programu jest Dawid Kańtoch. \nOfficeNotes jest darmowym programem, dostępnym dla wszystkich bez opłat.\nPobieranie opłat za użytkowanie wzbronione.\nCopyrights © All rights reserved 2019 ®","Autor programu OfficeNotes",JOptionPane.INFORMATION_MESSAGE);
             }
         });
 
@@ -427,13 +444,46 @@ public class TextEditor extends JFrame implements ActionListener
         panelUp.add(insertImageButton);
 
         boldButton = new JButton(boldImage);
-        boldButton.addActionListener(this);
+        boldButton.addActionListener(new ActionListener()
+        {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent)
+            {
+                if(isBold==false)
+                {
+                    StyleConstants.setBold(attr,true);
+                    textPane.setParagraphAttributes(attr,true);
+                    isBold=true;
+                }
+                if(isBold==true)
+                {
+                    StyleConstants.setBold(attr,false);
+                    textPane.setParagraphAttributes(attr,true);
+                    isBold=false;
+                }
+            }
+        });
 
         cursiveButton = new JButton(italicImage);
-        cursiveButton.addActionListener(this);
+        cursiveButton.addActionListener(new ActionListener()
+        {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent)
+            {
+                StyleConstants.setItalic(attr,true);
+                textPane.setParagraphAttributes(attr,true);
+            }
+        });
 
         underlineButton = new JButton(underlineImage);
-        underlineButton.addActionListener(this);
+        underlineButton.addActionListener(new ActionListener()
+        {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent)
+            {
+
+            }
+        });
 
         fontColorButton = new JButton();
         fontColorButton.setText("Kolor");
