@@ -3,6 +3,10 @@ import com.lowagie.text.DocumentException;
 import com.lowagie.text.Paragraph;
 import com.lowagie.text.pdf.PdfDocument;
 import com.lowagie.text.pdf.PdfWriter;
+import org.apache.poi.xwpf.usermodel.XWPFDocument;
+import org.apache.poi.xwpf.usermodel.XWPFParagraph;
+import org.apache.poi.xwpf.usermodel.XWPFRun;
+
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.text.SimpleAttributeSet;
@@ -25,6 +29,7 @@ public class TextEditor extends JFrame implements ActionListener
     private JFrame frame;
     private  JFileChooser fileOpener;
     private  JFileChooser saveDialog;
+    private  JFileChooser imageDialog;
     private  JPanel panelUp, panelDown, mainPanel;
     private  JToolBar toolBar;
     private  JButton boldButton, cursiveButton, underlineButton, fontColorButton, alignLeftButton, alignCenterButton, allignRightButton, justifyButton;
@@ -147,19 +152,43 @@ public class TextEditor extends JFrame implements ActionListener
             {
                 saveDialog = new JFileChooser();
                 FileNameExtensionFilter textExtenensions = new FileNameExtensionFilter("Pliki tekstowe", "txt");
+                FileNameExtensionFilter docxExtension = new FileNameExtensionFilter("Plik MS Word", "docx");
                 saveDialog.addChoosableFileFilter(textExtenensions);
+                saveDialog.addChoosableFileFilter(docxExtension);
                 if (saveDialog.showSaveDialog(frame) == JFileChooser.APPROVE_OPTION)
                 {
-                    File file = saveDialog.getSelectedFile();
-                    try
+                    if (saveDialog.getFileFilter() == docxExtension)
                     {
-                        BufferedWriter writer = new BufferedWriter(new FileWriter(file));
-                        writer.write(textPane.getText());
-                        writer.close();
+                        XWPFDocument document = new XWPFDocument();
+                        try
+                        {
+                            FileOutputStream out = new FileOutputStream(new File(saveDialog.getSelectedFile().getPath()));
+
+                            XWPFParagraph paragraph = document.createParagraph();
+                            XWPFRun run = paragraph.createRun();
+                            run.setText(textPane.getText());
+                            document.write(out);
+                            out.close();
+                        }
+                        catch (IOException e)
+                        {
+                            e.printStackTrace();
+                        }
+                        /////tu zapis do worda
                     }
-                    catch (IOException e)
-                    {
-                        e.printStackTrace();
+                    else
+                        {
+                        File file = saveDialog.getSelectedFile();
+                        try
+                        {
+                            BufferedWriter writer = new BufferedWriter(new FileWriter(file));
+                            writer.write(textPane.getText());
+                            writer.close();
+                        }
+                        catch (IOException e)
+                        {
+                            e.printStackTrace();
+                        }
                     }
                 }
             }
@@ -339,7 +368,21 @@ public class TextEditor extends JFrame implements ActionListener
         insertMenu = new JMenu("Wstaw");
 
         JMenuItem imageItem = new JMenuItem("Obraz");
-        imageItem.addActionListener(this);
+        imageItem.addActionListener(new ActionListener()
+        {
+            @Override
+            public void actionPerformed(ActionEvent e)
+            {
+                imageDialog = new JFileChooser();
+                FileNameExtensionFilter imageExtension = new FileNameExtensionFilter("Obraz", "jpg","png","raw");
+                imageDialog.addChoosableFileFilter(imageExtension);
+                if (imageDialog.showOpenDialog(frame) == JFileChooser.APPROVE_OPTION)
+                {
+                    textPane.insertIcon(new ImageIcon(imageDialog.getSelectedFile().getPath()));
+                    //textPane.insertComponent(new JLabel(new ImageIcon(imageDialog.getSelectedFile().getPath())));
+                }
+            }
+        });
         JMenuItem multimediaItem = new JMenuItem("Multimedia");
         multimediaItem.addActionListener(this);
         JMenuItem graphItem = new JMenuItem("Wykres");
@@ -434,7 +477,20 @@ public class TextEditor extends JFrame implements ActionListener
         });
 
         insertImageButton = new JButton(imageInsertImage);
-        insertImageButton.addActionListener(this);
+        insertImageButton.addActionListener(new ActionListener()
+        {
+            @Override
+            public void actionPerformed(ActionEvent e)
+            {
+                imageDialog = new JFileChooser();
+                FileNameExtensionFilter imageExtension = new FileNameExtensionFilter("Obraz", "jpg","png","raw");
+                imageDialog.addChoosableFileFilter(imageExtension);
+                if (imageDialog.showOpenDialog(frame) == JFileChooser.APPROVE_OPTION)
+                {
+                    textPane.insertIcon(new ImageIcon(imageDialog.getSelectedFile().getPath()));
+                }
+            }
+        });
 
         panelUp.add(newButton);
         panelUp.add(openButton);
