@@ -3,6 +3,8 @@ Free and advanced document editor, kinda OpenOffice, MS Word and all of this stu
 
 IMPORTANT - SOFTWARE IN DEVELOPMENT. STILL SOME FEATURES COULD NOT WORK!
 
+PS: First production name was OfficeNotes but the name was too similar to MS product
+
 # Prerequisites
 You don't need to install external software, all you need is JAVA ;)
 
