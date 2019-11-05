@@ -350,7 +350,8 @@ public class TextEditor extends JFrame implements ActionListener
         {
             public void actionPerformed(ActionEvent ev)
             {
-
+                FindAndReplace findAndReplaceAction = new FindAndReplace();
+                findAndReplaceAction.show();
             }
         });
 
