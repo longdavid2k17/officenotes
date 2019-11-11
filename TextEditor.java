@@ -8,10 +8,14 @@ import org.apache.poi.xwpf.usermodel.XWPFParagraph;
 import org.apache.poi.xwpf.usermodel.XWPFRun;
 
 import javax.swing.*;
+import javax.swing.event.UndoableEditEvent;
+import javax.swing.event.UndoableEditListener;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.text.SimpleAttributeSet;
 import javax.swing.text.StyleConstants;
 import javax.swing.text.StyledEditorKit;
+import javax.swing.undo.CannotRedoException;
+import javax.swing.undo.UndoManager;
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.print.*;
@@ -43,6 +47,7 @@ public class TextEditor extends JFrame implements ActionListener
     JMenu fileMenu, editMenu, insertMenu, helpMenu;
     JMenuBar menuBar;
     Color settedColor;
+    protected UndoManager undoManager;
 
     private static final List<String> FONT_LIST = Arrays.asList(new String [] {"Arial", "Calibri", "Cambria", "Courier New", "Comic Sans MS", "Dialog", "Georgia", "Helevetica", "Lucida Sans", "Monospaced", "Tahoma", "Times New Roman", "Verdana"});
     private static final String[] FONT_SIZES = {"7","8","9","10","11","12","13","14","15","16","17","18","19","20","22","23","24","25","26","27","28","29","30","31","32","33","34","35","36","37","38","39","40","41","42","43","44","45","46","47","48","49","50","51","52","53","54","55","56","57","58","59","60"};
@@ -85,6 +90,15 @@ public class TextEditor extends JFrame implements ActionListener
         textPane.setCharacterAttributes(attr, false);
 
         frame.getContentPane().add(scrollPanel,BorderLayout.CENTER);
+
+        undoManager = new UndoManager();
+
+        textPane.getDocument().addUndoableEditListener(new UndoableEditListener() {
+            @Override
+            public void undoableEditHappened(UndoableEditEvent e) {
+                undoManager.addEdit(e.getEdit());
+            }
+        });
 
         menuBar = new JMenuBar();
         menuBar.setBackground(new Color(40,122,252));
@@ -275,12 +289,21 @@ public class TextEditor extends JFrame implements ActionListener
 
         editMenu = new JMenu("Edycja");
 
+
+
         JMenuItem undoItem = new JMenuItem("Cofnij");
         undoItem.addActionListener(new ActionListener()
         {
             public void actionPerformed(ActionEvent ev)
             {
-
+                try
+                {
+                    undoManager.undo();
+                }
+                catch (CannotRedoException cre)
+                {
+                    cre.printStackTrace();
+                }
             }
         });
         JMenuItem redoItem = new JMenuItem("Ponów");
@@ -288,7 +311,14 @@ public class TextEditor extends JFrame implements ActionListener
         {
             public void actionPerformed(ActionEvent ev)
             {
-
+                try
+                {
+                    undoManager.redo();
+                }
+                catch (CannotRedoException cre)
+                {
+                    cre.printStackTrace();
+                }
             }
         });
 
@@ -384,15 +414,12 @@ public class TextEditor extends JFrame implements ActionListener
                 }
             }
         });
-        JMenuItem multimediaItem = new JMenuItem("Multimedia");
-        multimediaItem.addActionListener(this);
         JMenuItem graphItem = new JMenuItem("Wykres");
         graphItem.addActionListener(this);
         JMenuItem specialCharItem = new JMenuItem("Znak specjalny");
         specialCharItem.addActionListener(this);
 
         insertMenu.add(imageItem);
-        insertMenu.add(multimediaItem);
         insertMenu.add(graphItem);
         insertMenu.add(specialCharItem);
 
