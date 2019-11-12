@@ -1,7 +1,6 @@
 import com.lowagie.text.Document;
 import com.lowagie.text.DocumentException;
 import com.lowagie.text.Paragraph;
-import com.lowagie.text.pdf.PdfDocument;
 import com.lowagie.text.pdf.PdfWriter;
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
 import org.apache.poi.xwpf.usermodel.XWPFParagraph;
@@ -20,13 +19,11 @@ import java.awt.*;
 import java.awt.event.*;
 import java.awt.print.*;
 import java.io.*;
-import java.util.Arrays;
-import java.util.List;
 import java.util.Vector;
 
 
 
-public class TextEditor extends JFrame implements ActionListener
+public class TextEditor extends JFrame implements ActionListener, Resources
 {
     File actualFile = null;
 
@@ -46,47 +43,32 @@ public class TextEditor extends JFrame implements ActionListener
     private boolean isBold = false;
     JMenu fileMenu, editMenu, insertMenu, helpMenu;
     JMenuBar menuBar;
-    Color settedColor;
     protected UndoManager undoManager;
 
-    private static final List<String> FONT_LIST = Arrays.asList(new String [] {"Arial", "Calibri", "Cambria", "Courier New", "Comic Sans MS", "Dialog", "Georgia", "Helevetica", "Lucida Sans", "Monospaced", "Tahoma", "Times New Roman", "Verdana"});
-    private static final String[] FONT_SIZES = {"7","8","9","10","11","12","13","14","15","16","17","18","19","20","22","23","24","25","26","27","28","29","30","31","32","33","34","35","36","37","38","39","40","41","42","43","44","45","46","47","48","49","50","51","52","53","54","55","56","57","58","59","60"};
-    private static final int DEFAULT_FONT_SIZE = 10;
-
-    Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-
-    ImageIcon imageNew = new ImageIcon("src/images/icons8-new-document-50.png");
-    ImageIcon imageOpen = new ImageIcon("src/images/icons8-open-document-50.png");
-    ImageIcon imageSave = new ImageIcon("src/images/icons8-save-50.png");
-    ImageIcon imagePrint = new ImageIcon("src/images/icons8-print-50.png");
-    ImageIcon imageInsertImage = new ImageIcon("src/images/icons8-full-image-50.png");
-    ImageIcon boldImage = new ImageIcon("src/images/icons8-bold-50.png");
-    ImageIcon italicImage = new ImageIcon("src/images/icons8-italic-50.png");
-    ImageIcon underlineImage = new ImageIcon("src/images/icons8-underline-50.png");
-    ImageIcon alignLeftImage = new ImageIcon("src/images/icons8-align-left-50.png");
-    ImageIcon alignCenterImage = new ImageIcon("src/images/icons8-align-center-50.png");
-    ImageIcon jutifyImage = new ImageIcon("src/images/icons8-align-justify-50.png");
-    ImageIcon alignRightImage = new ImageIcon("src/images/icons8-align-right-50.png");
-
     TextEditor()
+    {
+        createUI();
+    }
+
+    void createUI()
     {
         frame = new JFrame();
         frame.setTitle("OfficeNotes");
         frame.setResizable(true);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setSize(screenSize.width,screenSize.height-30);
+        frame.setSize(Resources.screenSize.width,Resources.screenSize.height-30);
         frame.validate();
         frame.setBackground(Color.lightGray);
         frame.setLocationRelativeTo(null);
+        frame.setIconImage(Resources.mainIcon.getImage());
 
         textPane = new JTextPane();
-        //textPane.setMinimumSize(new Dimension(600,500));
         textPane.setBounds(300,0,500,800);
         scrollPanel = new JScrollPane(textPane);
         scrollPanel.setPreferredSize(new Dimension(1300,800));
 
         SimpleAttributeSet attr = new SimpleAttributeSet();
-        StyleConstants.setFontSize(attr,DEFAULT_FONT_SIZE);
+        StyleConstants.setFontSize(attr,Resources.DEFAULT_FONT_SIZE);
         textPane.setCharacterAttributes(attr, false);
 
         frame.getContentPane().add(scrollPanel,BorderLayout.CENTER);
@@ -111,7 +93,18 @@ public class TextEditor extends JFrame implements ActionListener
         {
             public void actionPerformed(ActionEvent ev)
             {
+                TextEditor newEditor = new TextEditor();
+                newEditor.frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+                newEditor.frame.setTitle("OfficeNotes - Nowy");
+                try
+                {
+                    new NotificationActions().showNotification("Utworzono nowy plik");
+                }
 
+                catch (AWTException e)
+                {
+                    e.printStackTrace();
+                }
             }
         });
         JMenuItem openItem = new JMenuItem("Otwórz");
@@ -191,7 +184,7 @@ public class TextEditor extends JFrame implements ActionListener
                         /////tu zapis do worda
                     }
                     else
-                        {
+                    {
                         File file = saveDialog.getSelectedFile();
                         try
                         {
@@ -460,7 +453,7 @@ public class TextEditor extends JFrame implements ActionListener
         fontFamilyCmbBox.setEditable(false);
         fontFamilyCmbBox.addItemListener(new FontFamilyItemListener());
 
-        fontSizes = new JComboBox<String>(FONT_SIZES);
+        fontSizes = new JComboBox<String>(Resources.FONT_SIZES);
         fontSizes.setSelectedIndex(3);
         fontSizes.setEditable(false);
         fontSizes.addActionListener(new ActionListener()
@@ -478,16 +471,25 @@ public class TextEditor extends JFrame implements ActionListener
         panelUp = new JPanel(new FlowLayout(FlowLayout.LEFT));
         panelUp.setBackground(new Color(110,160,240));
 
-        newButton = new JButton(imageNew);
-        newButton.addActionListener(this);
+        newButton = new JButton(Resources.imageNew);
+        newButton.addActionListener(new ActionListener()
+        {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent)
+            {
+                TextEditor newEditor = new TextEditor();
+                newEditor.frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+                newEditor.frame.setTitle("OfficeNotes - Nowy");
+            }
+        });
 
-        openButton = new JButton(imageOpen);
+        openButton = new JButton(Resources.imageOpen);
         openButton.addActionListener(this);
 
-        saveButton = new JButton(imageSave);
+        saveButton = new JButton(Resources.imageSave);
         saveButton.addActionListener(this);
 
-        printButton = new JButton(imagePrint);
+        printButton = new JButton(Resources.imagePrint);
         printButton.addActionListener(new ActionListener()
         {
             @Override
@@ -504,13 +506,14 @@ public class TextEditor extends JFrame implements ActionListener
             }
         });
 
-        insertImageButton = new JButton(imageInsertImage);
+        insertImageButton = new JButton(Resources.imageInsertImage);
         insertImageButton.addActionListener(new ActionListener()
         {
             @Override
             public void actionPerformed(ActionEvent e)
             {
                 imageDialog = new JFileChooser();
+                imageDialog.setDialogTitle("Wstaw obraz");
                 FileNameExtensionFilter imageExtension = new FileNameExtensionFilter("Obraz", "jpg","png","raw");
                 imageDialog.addChoosableFileFilter(imageExtension);
                 if (imageDialog.showOpenDialog(frame) == JFileChooser.APPROVE_OPTION)
@@ -527,7 +530,7 @@ public class TextEditor extends JFrame implements ActionListener
         panelUp.add(new JSeparator(SwingConstants.VERTICAL));
         panelUp.add(insertImageButton);
 
-        boldButton = new JButton(boldImage);
+        boldButton = new JButton(Resources.boldImage);
         boldButton.addActionListener(new ActionListener()
         {
             @Override
@@ -548,7 +551,7 @@ public class TextEditor extends JFrame implements ActionListener
             }
         });
 
-        cursiveButton = new JButton(italicImage);
+        cursiveButton = new JButton(Resources.italicImage);
         cursiveButton.addActionListener(new ActionListener()
         {
             @Override
@@ -559,7 +562,7 @@ public class TextEditor extends JFrame implements ActionListener
             }
         });
 
-        underlineButton = new JButton(underlineImage);
+        underlineButton = new JButton(Resources.underlineImage);
         underlineButton.addActionListener(new ActionListener()
         {
             @Override
@@ -573,7 +576,7 @@ public class TextEditor extends JFrame implements ActionListener
         fontColorButton.setText("Kolor");
         fontColorButton.addActionListener(this);
 
-        alignLeftButton = new JButton(alignLeftImage);
+        alignLeftButton = new JButton(Resources.alignLeftImage);
         alignLeftButton.addActionListener(new ActionListener()
         {
             @Override
@@ -584,7 +587,7 @@ public class TextEditor extends JFrame implements ActionListener
             }
         });
 
-        alignCenterButton = new JButton(alignCenterImage);
+        alignCenterButton = new JButton(Resources.alignCenterImage);
         alignCenterButton.addActionListener(new ActionListener()
         {
             @Override
@@ -595,7 +598,7 @@ public class TextEditor extends JFrame implements ActionListener
             }
         });
 
-        justifyButton = new JButton(jutifyImage);
+        justifyButton = new JButton(Resources.jutifyImage);
         justifyButton.addActionListener(new ActionListener()
         {
             @Override
@@ -606,7 +609,7 @@ public class TextEditor extends JFrame implements ActionListener
             }
         });
 
-        allignRightButton = new JButton(alignRightImage);
+        allignRightButton = new JButton(Resources.alignRightImage);
         allignRightButton.addActionListener(new ActionListener()
         {
             @Override
@@ -644,35 +647,28 @@ public class TextEditor extends JFrame implements ActionListener
 
         frame.pack();
         frame.setVisible(true);
+
     }
 
-    private Vector<String> getEditorFonts() {
-
+    private Vector<String> getEditorFonts()
+    {
         String [] availableFonts =
                 GraphicsEnvironment.getLocalGraphicsEnvironment().getAvailableFontFamilyNames();
         Vector<String> returnList = new Vector<>();
 
-        for (String font : availableFonts) {
-
-            if (FONT_LIST.contains(font)) {
-
+        for (String font : availableFonts)
+        {
+            if (Resources.FONT_LIST.contains(font))
+            {
                 returnList.add(font);
             }
         }
-
         return returnList;
-    }
-
-
-    public static void main(String args[])
-    {
-        new TextEditor();
     }
 
     @Override
     public void actionPerformed(ActionEvent e)
     {
-
         Object source = e.getSource();
 
         if(source==openButton)
@@ -685,7 +681,6 @@ public class TextEditor extends JFrame implements ActionListener
             if(returnValue == JFileChooser.APPROVE_OPTION)
             {
                 fileName=fileOpener.getSelectedFile().getAbsolutePath();
-
                 try
                 {
                     FileReader reader = new FileReader(fileName);
@@ -717,15 +712,12 @@ public class TextEditor extends JFrame implements ActionListener
     }
     private class FontFamilyItemListener implements ItemListener
     {
-
         @Override
         public void itemStateChanged(ItemEvent e)
         {
-
             if ((e.getStateChange() != ItemEvent.SELECTED) ||
                     (fontFamilyCmbBox.getSelectedIndex() == 0))
             {
-
                 return;
             }
 
@@ -735,7 +727,4 @@ public class TextEditor extends JFrame implements ActionListener
             textPane.requestFocusInWindow();
         }
     }
-
 }
-
-
