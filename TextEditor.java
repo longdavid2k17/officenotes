@@ -31,15 +31,13 @@ public class TextEditor extends JFrame implements ActionListener, Resources
     private  JFileChooser fileOpener;
     private  JFileChooser saveDialog;
     private  JFileChooser imageDialog;
-    private  JPanel panelUp, panelDown, mainPanel;
-    private  JToolBar toolBar;
+    private  JPanel panelUp, mainPanel;
     private  JButton boldButton, cursiveButton, underlineButton, fontColorButton, alignLeftButton, alignCenterButton, allignRightButton, justifyButton;
     private  JButton newButton, openButton, saveButton, printButton, insertImageButton;
     private JScrollPane scrollPanel;
     private JTextPane textPane;
     private JComboBox fontSizes, fontFamilyCmbBox;
     private String fileName;
-    private int styleIndex=0;
     private boolean isBold = false;
     JMenu fileMenu, editMenu, insertMenu, helpMenu;
     JMenuBar menuBar;
@@ -48,6 +46,24 @@ public class TextEditor extends JFrame implements ActionListener, Resources
     TextEditor()
     {
         createUI();
+    }
+    TextEditor(File file)
+    {
+        createUI();
+        actualFile = file;
+        try
+        {
+            FileReader reader = new FileReader(file);
+            BufferedReader bufferedReader = new BufferedReader(reader);
+            textPane.read(bufferedReader,null);
+            bufferedReader.close();
+            textPane.requestFocus();
+        }
+        catch (Exception error)
+        {
+            JOptionPane.showMessageDialog(null,error);
+        }
+
     }
 
     void createUI()
@@ -89,6 +105,8 @@ public class TextEditor extends JFrame implements ActionListener, Resources
         fileMenu.setMnemonic(KeyEvent.VK_F);
 
         JMenuItem newItem = new JMenuItem("Nowy");
+        KeyStroke quickNew = KeyStroke.getKeyStroke(KeyEvent.VK_N, KeyEvent.CTRL_DOWN_MASK);
+        newItem.setAccelerator(quickNew);
         newItem.addActionListener(new ActionListener()
         {
             public void actionPerformed(ActionEvent ev)
@@ -108,6 +126,8 @@ public class TextEditor extends JFrame implements ActionListener, Resources
             }
         });
         JMenuItem openItem = new JMenuItem("Otwórz");
+        KeyStroke quickOpen = KeyStroke.getKeyStroke(KeyEvent.VK_O, KeyEvent.CTRL_DOWN_MASK);
+        openItem.setAccelerator(quickOpen);
         openItem.addActionListener(new ActionListener()
         {
             public void actionPerformed(ActionEvent ev)
@@ -119,20 +139,8 @@ public class TextEditor extends JFrame implements ActionListener, Resources
                 int returnValue = fileOpener.showOpenDialog(null);
                 if(returnValue == JFileChooser.APPROVE_OPTION)
                 {
-                    fileName=fileOpener.getSelectedFile().getAbsolutePath();
-
-                    try
-                    {
-                        FileReader reader = new FileReader(fileName);
-                        BufferedReader bufferedReader = new BufferedReader(reader);
-                        textPane.read(bufferedReader,null);
-                        bufferedReader.close();
-                        textPane.requestFocus();
-                    }
-                    catch (Exception error)
-                    {
-                        JOptionPane.showMessageDialog(null,error);
-                    }
+                    //fileName=fileOpener.getSelectedFile().getAbsolutePath();
+                    new TextEditor(fileOpener.getSelectedFile());
                 }
             }
         });
@@ -149,9 +157,15 @@ public class TextEditor extends JFrame implements ActionListener, Resources
         {
             public void actionPerformed(ActionEvent ev)
             {
-
+                if(actualFile!=null)
+                {
+                    ////here to quick save
+                }
+                else return;
             }
         });
+        ///KeyStroke quickSave = KeyStroke.getKeyStroke(KeyEvent.VK_S, KeyEvent.CTRL_DOWN_MASK);
+
         JMenuItem saveAsItem = new JMenuItem("Zapisz jako");
         saveAsItem.addActionListener(new ActionListener()
         {
@@ -200,14 +214,9 @@ public class TextEditor extends JFrame implements ActionListener, Resources
                 }
             }
         });
-        JMenuItem saveCopyItem = new JMenuItem("Zapisz kopię");
-        saveCopyItem.addActionListener(new ActionListener()
-        {
-            public void actionPerformed(ActionEvent ev)
-            {
+        KeyStroke normalSave = KeyStroke.getKeyStroke(KeyEvent.VK_S, KeyEvent.CTRL_DOWN_MASK);
+        saveAsItem.setAccelerator(normalSave);
 
-            }
-        });
         JMenuItem exportAsPDF = new JMenuItem("Zapisz jako PDF");
         exportAsPDF.addActionListener(new ActionListener()
         {
@@ -245,6 +254,8 @@ public class TextEditor extends JFrame implements ActionListener, Resources
             }
         });
         JMenuItem printItem = new JMenuItem("Drukuj...");
+        KeyStroke quickPrint = KeyStroke.getKeyStroke(KeyEvent.VK_P, KeyEvent.CTRL_DOWN_MASK);
+        printItem.setAccelerator(quickPrint);
         printItem.addActionListener(new ActionListener()
         {
             public void actionPerformed(ActionEvent ev)
@@ -274,7 +285,6 @@ public class TextEditor extends JFrame implements ActionListener, Resources
         fileMenu.addSeparator();
         fileMenu.add(saveItem);
         fileMenu.add(saveAsItem);
-        fileMenu.add(saveCopyItem);
         fileMenu.add(exportAsPDF);
         fileMenu.addSeparator();
         fileMenu.add(printItem);
@@ -285,6 +295,8 @@ public class TextEditor extends JFrame implements ActionListener, Resources
 
 
         JMenuItem undoItem = new JMenuItem("Cofnij");
+        KeyStroke quickUndo = KeyStroke.getKeyStroke(KeyEvent.VK_Z, KeyEvent.CTRL_DOWN_MASK);
+        undoItem.setAccelerator(quickUndo);
         undoItem.addActionListener(new ActionListener()
         {
             public void actionPerformed(ActionEvent ev)
@@ -296,10 +308,13 @@ public class TextEditor extends JFrame implements ActionListener, Resources
                 catch (CannotRedoException cre)
                 {
                     cre.printStackTrace();
+                    //undoItem.setEnabled(false);
                 }
             }
         });
         JMenuItem redoItem = new JMenuItem("Ponów");
+        KeyStroke quickRedo = KeyStroke.getKeyStroke(KeyEvent.VK_Y, KeyEvent.CTRL_DOWN_MASK);
+        redoItem.setAccelerator(quickRedo);
         redoItem.addActionListener(new ActionListener()
         {
             public void actionPerformed(ActionEvent ev)
@@ -311,6 +326,7 @@ public class TextEditor extends JFrame implements ActionListener, Resources
                 catch (CannotRedoException cre)
                 {
                     cre.printStackTrace();
+                    //redoItem.setEnabled(false);
                 }
             }
         });
@@ -480,6 +496,16 @@ public class TextEditor extends JFrame implements ActionListener, Resources
                 TextEditor newEditor = new TextEditor();
                 newEditor.frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
                 newEditor.frame.setTitle("OfficeNotes - Nowy");
+
+                try
+                {
+                    new NotificationActions().showNotification("Utworzono nowy plik");
+                }
+
+                catch (AWTException e)
+                {
+                    e.printStackTrace();
+                }
             }
         });
 
@@ -620,27 +646,26 @@ public class TextEditor extends JFrame implements ActionListener, Resources
             }
         });
 
-        panelDown = new JPanel();
-        panelDown.setBackground(new Color(110,160,240));
-        panelDown.add(fontFamilyCmbBox);
-        panelDown.add(new JSeparator(SwingConstants.VERTICAL));
-        panelDown.add(fontSizes);
-        panelDown.add(new JSeparator(SwingConstants.VERTICAL));
-        panelDown.add(boldButton);
-        panelDown.add(cursiveButton);
-        panelDown.add(underlineButton);
-        panelDown.add(new JSeparator(SwingConstants.VERTICAL));
-        panelDown.add(fontColorButton);
-        panelDown.add(new JSeparator(SwingConstants.VERTICAL));
-        panelDown.add(alignLeftButton);
-        panelDown.add(alignCenterButton);
-        panelDown.add(justifyButton);
-        panelDown.add(allignRightButton);
+        panelUp.add(new JSeparator(SwingConstants.CENTER));
+        panelUp.add(fontFamilyCmbBox);
+        panelUp.add(new JSeparator(SwingConstants.VERTICAL));
+        panelUp.add(fontSizes);
+        panelUp.add(new JSeparator(SwingConstants.VERTICAL));
+        panelUp.add(boldButton);
+        panelUp.add(cursiveButton);
+        panelUp.add(underlineButton);
+        panelUp.add(new JSeparator(SwingConstants.VERTICAL));
+        panelUp.add(fontColorButton);
+        panelUp.add(new JSeparator(SwingConstants.VERTICAL));
+        panelUp.add(alignLeftButton);
+        panelUp.add(alignCenterButton);
+        panelUp.add(justifyButton);
+        panelUp.add(allignRightButton);
 
         mainPanel = new JPanel();
         mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.PAGE_AXIS));
         mainPanel.add(panelUp);
-        mainPanel.add(panelDown);
+        mainPanel.add(panelUp);
 
         frame.add(mainPanel,BorderLayout.NORTH);
         frame.add(scrollPanel,BorderLayout.CENTER);
@@ -652,16 +677,12 @@ public class TextEditor extends JFrame implements ActionListener, Resources
 
     private Vector<String> getEditorFonts()
     {
-        String [] availableFonts =
-                GraphicsEnvironment.getLocalGraphicsEnvironment().getAvailableFontFamilyNames();
+        String [] availableFonts = GraphicsEnvironment.getLocalGraphicsEnvironment().getAvailableFontFamilyNames();
         Vector<String> returnList = new Vector<>();
 
         for (String font : availableFonts)
         {
-            if (Resources.FONT_LIST.contains(font))
-            {
                 returnList.add(font);
-            }
         }
         return returnList;
     }
@@ -715,15 +736,13 @@ public class TextEditor extends JFrame implements ActionListener, Resources
         @Override
         public void itemStateChanged(ItemEvent e)
         {
-            if ((e.getStateChange() != ItemEvent.SELECTED) ||
-                    (fontFamilyCmbBox.getSelectedIndex() == 0))
+            if ((e.getStateChange() != ItemEvent.SELECTED) || (fontFamilyCmbBox.getSelectedIndex() == 0))
             {
                 return;
             }
-
             String fontFamily = (String) e.getItem();
             fontFamilyCmbBox.setAction(new StyledEditorKit.FontFamilyAction(fontFamily, fontFamily));
-            fontFamilyCmbBox.setSelectedIndex(0); // initialize to (default) select
+            fontFamilyCmbBox.setSelectedIndex(fontFamilyCmbBox.getSelectedIndex());
             textPane.requestFocusInWindow();
         }
     }
