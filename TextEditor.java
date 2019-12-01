@@ -2,6 +2,7 @@ import com.lowagie.text.Document;
 import com.lowagie.text.DocumentException;
 import com.lowagie.text.Paragraph;
 import com.lowagie.text.pdf.PdfWriter;
+import org.apache.poi.xwpf.usermodel.*;
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
 import org.apache.poi.xwpf.usermodel.XWPFParagraph;
 import org.apache.poi.xwpf.usermodel.XWPFRun;
@@ -19,6 +20,7 @@ import java.awt.*;
 import java.awt.event.*;
 import java.awt.print.*;
 import java.io.*;
+import java.util.ArrayList;
 import java.util.Vector;
 
 
@@ -42,6 +44,9 @@ public class TextEditor extends JFrame implements ActionListener, Resources
     JMenu fileMenu, editMenu, insertMenu, helpMenu;
     JMenuBar menuBar;
     protected UndoManager undoManager;
+    static ArrayList<String> imageAdressArray;
+    static ArrayList<String> imageNameArray;
+    private int imageCount=0;
 
     TextEditor()
     {
@@ -66,8 +71,10 @@ public class TextEditor extends JFrame implements ActionListener, Resources
 
     }
 
-    void createUI()
+    private void createUI()
     {
+        EditorActions actions = new EditorActions();
+
         frame = new JFrame();
         frame.setTitle("OfficeNotes");
         frame.setResizable(true);
@@ -140,7 +147,7 @@ public class TextEditor extends JFrame implements ActionListener, Resources
                 if(returnValue == JFileChooser.APPROVE_OPTION)
                 {
                     //fileName=fileOpener.getSelectedFile().getAbsolutePath();
-                    new TextEditor(fileOpener.getSelectedFile());
+                    new TextEditor(fileOpener.getSelectedFile()).setTitle(fileOpener.getSelectedFile().getName());
                 }
             }
         });
@@ -180,18 +187,28 @@ public class TextEditor extends JFrame implements ActionListener, Resources
                 {
                     if (saveDialog.getFileFilter() == docxExtension)
                     {
-                        XWPFDocument document = new XWPFDocument();
                         try
                         {
+                            XWPFDocument document = new XWPFDocument();
                             FileOutputStream out = new FileOutputStream(new File(saveDialog.getSelectedFile().getPath()));
 
                             XWPFParagraph paragraph = document.createParagraph();
                             XWPFRun run = paragraph.createRun();
                             run.setText(textPane.getText());
+                            System.out.println(imageCount);
+                            System.out.println(imageAdressArray.get(0));
+                            if(imageCount>0)
+                            {
+                                for(int i = 0; i< imageAdressArray.size(); i++)
+                                {
+                                    InputStream pic = new FileInputStream(imageAdressArray.get(i));
+                                    run.addPicture(pic, XWPFDocument.PICTURE_TYPE_JPEG, imageNameArray.get(i),100,100);
+                                }
+                            }
                             document.write(out);
                             out.close();
                         }
-                        catch (IOException e)
+                        catch (Exception e)
                         {
                             e.printStackTrace();
                         }
@@ -413,14 +430,9 @@ public class TextEditor extends JFrame implements ActionListener, Resources
             @Override
             public void actionPerformed(ActionEvent e)
             {
-                imageDialog = new JFileChooser();
-                FileNameExtensionFilter imageExtension = new FileNameExtensionFilter("Obraz", "jpg","png","raw");
-                imageDialog.addChoosableFileFilter(imageExtension);
-                if (imageDialog.showOpenDialog(frame) == JFileChooser.APPROVE_OPTION)
-                {
-                    textPane.insertIcon(new ImageIcon(imageDialog.getSelectedFile().getPath()));
-                    //textPane.insertComponent(new JLabel(new ImageIcon(imageDialog.getSelectedFile().getPath())));
-                }
+                actions.drawImage(frame,textPane);
+                imageCount++;
+                //System.out.println(imageCount);
             }
         });
         JMenuItem graphItem = new JMenuItem("Wykres");
@@ -538,14 +550,7 @@ public class TextEditor extends JFrame implements ActionListener, Resources
             @Override
             public void actionPerformed(ActionEvent e)
             {
-                imageDialog = new JFileChooser();
-                imageDialog.setDialogTitle("Wstaw obraz");
-                FileNameExtensionFilter imageExtension = new FileNameExtensionFilter("Obraz", "jpg","png","raw");
-                imageDialog.addChoosableFileFilter(imageExtension);
-                if (imageDialog.showOpenDialog(frame) == JFileChooser.APPROVE_OPTION)
-                {
-                    textPane.insertIcon(new ImageIcon(imageDialog.getSelectedFile().getPath()));
-                }
+                actions.drawImage(frame,textPane);
             }
         });
 
