@@ -1,12 +1,3 @@
-import com.lowagie.text.Document;
-import com.lowagie.text.DocumentException;
-import com.lowagie.text.Paragraph;
-import com.lowagie.text.pdf.PdfWriter;
-import org.apache.poi.xwpf.usermodel.*;
-import org.apache.poi.xwpf.usermodel.XWPFDocument;
-import org.apache.poi.xwpf.usermodel.XWPFParagraph;
-import org.apache.poi.xwpf.usermodel.XWPFRun;
-
 import javax.swing.*;
 import javax.swing.event.UndoableEditEvent;
 import javax.swing.event.UndoableEditListener;
@@ -23,16 +14,12 @@ import java.io.*;
 import java.util.ArrayList;
 import java.util.Vector;
 
-
-
 public class TextEditor extends JFrame implements ActionListener, Resources
 {
     File actualFile = null;
 
     private JFrame frame;
     private  JFileChooser fileOpener;
-    private  JFileChooser saveDialog;
-    private  JFileChooser imageDialog;
     private  JPanel panelUp, mainPanel;
     private  JButton boldButton, cursiveButton, underlineButton, fontColorButton, alignLeftButton, alignCenterButton, allignRightButton, justifyButton;
     private  JButton newButton, openButton, saveButton, printButton, insertImageButton;
@@ -68,7 +55,6 @@ public class TextEditor extends JFrame implements ActionListener, Resources
         {
             JOptionPane.showMessageDialog(null,error);
         }
-
     }
 
     private void createUI()
@@ -178,57 +164,7 @@ public class TextEditor extends JFrame implements ActionListener, Resources
         {
             public void actionPerformed(ActionEvent ev)
             {
-                saveDialog = new JFileChooser();
-                FileNameExtensionFilter textExtenensions = new FileNameExtensionFilter("Pliki tekstowe", "txt");
-                FileNameExtensionFilter docxExtension = new FileNameExtensionFilter("Plik MS Word", "docx");
-                saveDialog.addChoosableFileFilter(textExtenensions);
-                saveDialog.addChoosableFileFilter(docxExtension);
-                if (saveDialog.showSaveDialog(frame) == JFileChooser.APPROVE_OPTION)
-                {
-                    if (saveDialog.getFileFilter() == docxExtension)
-                    {
-                        try
-                        {
-                            XWPFDocument document = new XWPFDocument();
-                            FileOutputStream out = new FileOutputStream(new File(saveDialog.getSelectedFile().getPath()));
-
-                            XWPFParagraph paragraph = document.createParagraph();
-                            XWPFRun run = paragraph.createRun();
-                            run.setText(textPane.getText());
-                            System.out.println(imageCount);
-                            System.out.println(imageAdressArray.get(0));
-                            if(imageCount>0)
-                            {
-                                for(int i = 0; i< imageAdressArray.size(); i++)
-                                {
-                                    InputStream pic = new FileInputStream(imageAdressArray.get(i));
-                                    run.addPicture(pic, XWPFDocument.PICTURE_TYPE_JPEG, imageNameArray.get(i),100,100);
-                                }
-                            }
-                            document.write(out);
-                            out.close();
-                        }
-                        catch (Exception e)
-                        {
-                            e.printStackTrace();
-                        }
-                        /////tu zapis do worda
-                    }
-                    else
-                    {
-                        File file = saveDialog.getSelectedFile();
-                        try
-                        {
-                            BufferedWriter writer = new BufferedWriter(new FileWriter(file));
-                            writer.write(textPane.getText());
-                            writer.close();
-                        }
-                        catch (IOException e)
-                        {
-                            e.printStackTrace();
-                        }
-                    }
-                }
+                actions.save(frame,textPane);
             }
         });
         KeyStroke normalSave = KeyStroke.getKeyStroke(KeyEvent.VK_S, KeyEvent.CTRL_DOWN_MASK);
@@ -239,34 +175,13 @@ public class TextEditor extends JFrame implements ActionListener, Resources
         {
             public void actionPerformed(ActionEvent ev)
             {
-                saveDialog = new JFileChooser();
-                FileNameExtensionFilter pdfExtension = new FileNameExtensionFilter("Pliki PDF", "pdf");
-                saveDialog.addChoosableFileFilter(pdfExtension);
-                if (saveDialog.showSaveDialog(frame) == JFileChooser.APPROVE_OPTION)
+                if(textPane.getText().length()>0)
                 {
-                    File file = saveDialog.getSelectedFile();
-
-                    Document document = new Document();
-                    try
-                    {
-                        PdfWriter writer = PdfWriter.getInstance(document, new FileOutputStream(file.getAbsolutePath()));
-                        document.open();
-                        document.addCreationDate();
-
-                        document.addAuthor(System.getProperty("user.name"));
-                        document.add(new Paragraph(textPane.getText()));
-                        document.close();
-                        writer.close();
-                    }
-                    catch (IOException e)
-                    {
-                        e.printStackTrace();
-                    }
-
-                    catch (DocumentException e)
-                    {
-                        e.printStackTrace();
-                    }
+                    actions.saveAsPDF(frame, textPane);
+                }
+                else
+                {
+                    JOptionPane.showMessageDialog(frame,"Dokument jest pusty i nie może być zapisany!","Błąd zapisu",JOptionPane.INFORMATION_MESSAGE);
                 }
             }
         });
@@ -308,8 +223,6 @@ public class TextEditor extends JFrame implements ActionListener, Resources
         fileMenu.add(exitItem);
 
         editMenu = new JMenu("Edycja");
-
-
 
         JMenuItem undoItem = new JMenuItem("Cofnij");
         KeyStroke quickUndo = KeyStroke.getKeyStroke(KeyEvent.VK_Z, KeyEvent.CTRL_DOWN_MASK);
@@ -452,7 +365,7 @@ public class TextEditor extends JFrame implements ActionListener, Resources
             @Override
             public void actionPerformed(ActionEvent e)
             {
-                JOptionPane.showMessageDialog(frame,"Na szczycie okna znajduje się menu obsługi programu - możesz tam utworzyć nowy plik, otworzyć inny plik, zapisać, wydrukować etc.\nIkony najważniejszych funkcji znajdują się pod menu.\nWybierz następnie swoją ulubioną czcionkę, kolor i wpadnij w wir kreatywnej pracy pisarza!", "Jak używać programu OfficeNotes",JOptionPane.INFORMATION_MESSAGE);
+                JOptionPane.showMessageDialog(frame,Resources.howToUseText, "Jak używać programu OfficeNotes",JOptionPane.INFORMATION_MESSAGE);
             }
         });
         JMenuItem aboutAuthorItem = new JMenuItem("O autorze");
@@ -461,7 +374,7 @@ public class TextEditor extends JFrame implements ActionListener, Resources
             @Override
             public void actionPerformed(ActionEvent e)
             {
-                JOptionPane.showMessageDialog(frame,"Autorem programu jest Dawid Kańtoch. \nOfficeNotes jest darmowym programem, dostępnym dla wszystkich bez opłat.\nPobieranie opłat za użytkowanie wzbronione.\nCopyrights © All rights reserved 2019 ®","Autor programu OfficeNotes",JOptionPane.INFORMATION_MESSAGE);
+                JOptionPane.showMessageDialog(frame,Resources.authorText,"Autor programu OfficeNotes",JOptionPane.INFORMATION_MESSAGE);
             }
         });
 
@@ -677,7 +590,6 @@ public class TextEditor extends JFrame implements ActionListener, Resources
 
         frame.pack();
         frame.setVisible(true);
-
     }
 
     private Vector<String> getEditorFonts()
