@@ -1,7 +1,12 @@
+import Charts.ChartsEditor;
+import Interfaces.Resources;
+
 import javax.swing.*;
 import javax.swing.event.UndoableEditEvent;
 import javax.swing.event.UndoableEditListener;
 import javax.swing.filechooser.FileNameExtensionFilter;
+import javax.swing.table.AbstractTableModel;
+import javax.swing.table.TableModel;
 import javax.swing.text.SimpleAttributeSet;
 import javax.swing.text.StyleConstants;
 import javax.swing.text.StyledEditorKit;
@@ -349,12 +354,30 @@ public class TextEditor extends JFrame implements ActionListener, Resources
             }
         });
         JMenuItem graphItem = new JMenuItem("Wykres");
-        graphItem.addActionListener(this);
+        graphItem.addActionListener(new ActionListener()
+        {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent)
+            {
+                new ChartsEditor();
+            }
+        });
         JMenuItem specialCharItem = new JMenuItem("Znak specjalny");
         specialCharItem.addActionListener(this);
 
+        JMenuItem tableItem = new JMenuItem("Tabelka");
+        tableItem.addActionListener(new ActionListener()
+        {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent)
+            {
+                new Table(textPane);
+            }
+        });
+
         insertMenu.add(imageItem);
         insertMenu.add(graphItem);
+        insertMenu.add(tableItem);
         insertMenu.add(specialCharItem);
 
         helpMenu = new JMenu("Pomoc");

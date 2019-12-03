@@ -8,6 +8,10 @@ import org.apache.poi.xwpf.usermodel.XWPFRun;
 
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.DefaultStyledDocument;
+import javax.swing.text.StyledDocument;
+import javax.swing.text.StyledEditorKit;
 import java.awt.*;
 import java.io.*;
 import java.util.ArrayList;
@@ -109,14 +113,18 @@ public class EditorActions
             }
             else
             {
+                //StyledDocument doc = (DefaultStyledDocument) textPanePointer.getDocument();
+                //StyledEditorKit kit = (StyledEditorKit) textPanePointer.getEditorKit();
                 File file = saveDialog.getSelectedFile();
                 try
                 {
                     BufferedWriter writer = new BufferedWriter(new FileWriter(file));
+                    //BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(file));
                     writer.write(textPanePointer.getText());
+                    //kit.write(out, doc, 0, doc.getLength());
                     writer.close();
                 }
-                catch (IOException e)
+                catch (IOException  e)
                 {
                     e.printStackTrace();
                 }
