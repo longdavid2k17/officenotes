@@ -1,5 +1,13 @@
 import javax.swing.*;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.DefaultHighlighter;
+import javax.swing.text.Highlighter;
+import java.awt.*;
 import java.awt.event.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Iterator;
+import java.util.Scanner;
 
 public class Find extends JDialog
 {
@@ -7,10 +15,12 @@ public class Find extends JDialog
     private JButton buttonOK;
     private JButton buttonCancel;
     private JTextField textField1;
+    private JTextPane textPane;
+    private int counter=0;
 
     private String searchedString;
 
-    public Find()
+    public Find(JTextPane pointer)
     {
         setContentPane(contentPane);
         setModal(true);
@@ -19,12 +29,18 @@ public class Find extends JDialog
         setLocationRelativeTo(null);
         getRootPane().setDefaultButton(buttonOK);
 
+        setTextPane(pointer);
+
         buttonOK.addActionListener(new ActionListener()
         {
             public void actionPerformed(ActionEvent e)
             {
                 searchedString = textField1.getText();
-                onOK();
+                try {
+                    onOK();
+                } catch (BadLocationException ex) {
+                    ex.printStackTrace();
+                }
             }
         });
 
@@ -35,8 +51,6 @@ public class Find extends JDialog
                 onCancel();
             }
         });
-
-        // call onCancel() when cross is clicked
         setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
         addWindowListener(new WindowAdapter() {
             public void windowClosing(WindowEvent e) {
@@ -44,7 +58,6 @@ public class Find extends JDialog
             }
         });
 
-        // call onCancel() on ESCAPE
         contentPane.registerKeyboardAction(new ActionListener()
         {
             public void actionPerformed(ActionEvent e)
@@ -54,10 +67,39 @@ public class Find extends JDialog
         }, KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
     }
 
-    private void onOK()
+    private void setTextPane(JTextPane val)
     {
-        // add your code here
+        textPane = val;
+    }
+
+    private void onOK() throws BadLocationException {
+        String text = textPane.getText();
+        System.out.println(text);
+
+        Scanner input = new Scanner(text).useDelimiter(" ");
+        ArrayList<String> lista = new ArrayList<String>();
+        while(input.hasNext())
+        {
+            lista.add(input.next());
+        }
+        input.close();
+
+        for(String a: lista)
+        {
+            if(a.contains(searchedString))
+            {
+                counter++;
+            }
+        }
+        Highlighter highlighter = textPane.getHighlighter();
+        Highlighter.HighlightPainter painter =
+                new DefaultHighlighter.DefaultHighlightPainter(Color.red);
+        int p0 = text.indexOf(searchedString);
+        int p1 = p0 + searchedString.length();
+
+        JOptionPane.showMessageDialog(this,"Wyraz pojawił się "+counter+" raz/y","Wyniki wyszukiwania",JOptionPane.INFORMATION_MESSAGE);
         dispose();
+        highlighter.addHighlight(p0, p1, painter );
     }
 
     private void onCancel()

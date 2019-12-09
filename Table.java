@@ -17,7 +17,7 @@ public class Table extends JFrame
     {
         tableCreator = new JFrame();
         tableCreator.setTitle("Wstaw tabelę");
-        tableCreator.setSize(600, 600);
+        tableCreator.setSize(300, 250);
         tableCreator.setVisible(true);
         tableCreator.setLayout(null);
         tableCreator.setLocationRelativeTo(null);
@@ -35,17 +35,17 @@ public class Table extends JFrame
         tableCreator.add(columnField);
 
         rowLabel = new JLabel("Ilość wierszy");
-        rowLabel.setBounds(10,60,100,50);
+        rowLabel.setBounds(10,70,100,50);
         rowLabel.setVisible(true);
         tableCreator.add(rowLabel);
 
         rowField = new JTextField();
-        rowField.setBounds(120,60,100,50);
+        rowField.setBounds(120,70,100,50);
         rowField.setVisible(true);
         tableCreator.add(rowField);
 
         okButton = new JButton("Wstaw");
-        okButton.setBounds(350,500,75,50);
+        okButton.setBounds(50,150,75,50);
         okButton.addActionListener(new ActionListener()
         {
             @Override
@@ -53,14 +53,19 @@ public class Table extends JFrame
             {
                 setColumnCount();
                 setRowCount();
-                pointer.insertComponent(new JTable(getRowCount(),getColumnCount()));
-                tableCreator.dispose();
+                if(rowCount>0&&columnCount>0)
+                {
+                    pointer.insertComponent(new JTable(getRowCount(),getColumnCount()));
+                    tableCreator.dispose();
+                }
+                else
+                    JOptionPane.showMessageDialog(tableCreator,"Wartości nie zostały podane lub są równe 0!","Błąd",JOptionPane.ERROR_MESSAGE);
             }
         });
         tableCreator.add(okButton);
 
         cancelButton = new JButton("Anuluj");
-        cancelButton.setBounds(450,500,75,50);
+        cancelButton.setBounds(150,150,75,50);
         cancelButton.addActionListener(new ActionListener()
         {
             @Override
@@ -82,10 +87,20 @@ public class Table extends JFrame
     }
     void setColumnCount()
     {
-                columnCount = Integer.valueOf(columnField.getText());
+        if(Integer.valueOf(columnField.getText())>0)
+        {
+            columnCount = Integer.valueOf(columnField.getText());
+        }
+        else
+            columnCount = 0;
     }
     void setRowCount()
     {
-                rowCount = Integer.valueOf(rowField.getText());
+        if(Integer.valueOf(rowField.getText())>0)
+        {
+            rowCount = Integer.valueOf(rowField.getText());
+        }
+        else
+            columnCount = 0;
     }
 }

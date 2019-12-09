@@ -5,8 +5,6 @@ import javax.swing.*;
 import javax.swing.event.UndoableEditEvent;
 import javax.swing.event.UndoableEditListener;
 import javax.swing.filechooser.FileNameExtensionFilter;
-import javax.swing.table.AbstractTableModel;
-import javax.swing.table.TableModel;
 import javax.swing.text.SimpleAttributeSet;
 import javax.swing.text.StyleConstants;
 import javax.swing.text.StyledEditorKit;
@@ -24,10 +22,11 @@ public class TextEditor extends JFrame implements ActionListener, Resources
     File actualFile = null;
 
     private JFrame frame;
-    private  JFileChooser fileOpener;
-    private  JPanel panelUp, mainPanel;
-    private  JButton boldButton, cursiveButton, underlineButton, fontColorButton, alignLeftButton, alignCenterButton, allignRightButton, justifyButton;
-    private  JButton newButton, openButton, saveButton, printButton, insertImageButton;
+    private JFileChooser fileOpener;
+    private JPanel panelUp, mainPanel;
+    private JPanel spacerLeftPanel, spacerRightPanel;
+    private JButton boldButton, cursiveButton, underlineButton, fontColorButton, alignLeftButton, alignCenterButton, alignRightButton, justifyButton;
+    private JButton openButton, saveButton, printButton, insertImageButton;
     private JScrollPane scrollPanel;
     private JTextPane textPane;
     private JComboBox fontSizes, fontFamilyCmbBox;
@@ -77,15 +76,21 @@ public class TextEditor extends JFrame implements ActionListener, Resources
         frame.setIconImage(Resources.mainIcon.getImage());
 
         textPane = new JTextPane();
-        textPane.setBounds(300,0,500,800);
+        textPane.setBounds(300,0,400,800);
         scrollPanel = new JScrollPane(textPane);
-        scrollPanel.setPreferredSize(new Dimension(1300,800));
+        scrollPanel.setPreferredSize(new Dimension(400,800));
 
         SimpleAttributeSet attr = new SimpleAttributeSet();
         StyleConstants.setFontSize(attr,Resources.DEFAULT_FONT_SIZE);
         textPane.setCharacterAttributes(attr, false);
+        spacerLeftPanel = new JPanel();
+        spacerRightPanel = new JPanel();
+        spacerLeftPanel.setPreferredSize(new Dimension(300,800));
+        spacerRightPanel.setPreferredSize(new Dimension(300,800));
 
+        frame.getContentPane().add(spacerLeftPanel,BorderLayout.LINE_START);
         frame.getContentPane().add(scrollPanel,BorderLayout.CENTER);
+        frame.getContentPane().add(spacerRightPanel,BorderLayout.LINE_END);
 
         undoManager = new UndoManager();
 
@@ -304,18 +309,8 @@ public class TextEditor extends JFrame implements ActionListener, Resources
             public void actionPerformed(ActionEvent ev)
             {
 
-                Find simpleFindAction = new Find();
+                Find simpleFindAction = new Find(textPane);
                 simpleFindAction.show();
-                int tempTextLenght = textPane.getText().length();
-                String textCopied = textPane.getText();
-                String searchedFrase = simpleFindAction.getString();
-
-                /*
-                for(int i=0;i<tempTextLenght;i++)
-                {
-                    if(textCopied[i]==searchedFrase[0])
-                }
-                */
                 //JOptionPane.showMessageDialog(frame,"Poszukiwana fraza: "+simpleFindAction.getString(),"Fraza",JOptionPane.INFORMATION_MESSAGE);
             }
         });
@@ -435,35 +430,16 @@ public class TextEditor extends JFrame implements ActionListener, Resources
         panelUp = new JPanel(new FlowLayout(FlowLayout.LEFT));
         panelUp.setBackground(new Color(110,160,240));
 
-        newButton = new JButton(Resources.imageNew);
-        newButton.addActionListener(new ActionListener()
-        {
-            @Override
-            public void actionPerformed(ActionEvent actionEvent)
-            {
-                TextEditor newEditor = new TextEditor();
-                newEditor.frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-                newEditor.frame.setTitle("OfficeNotes - Nowy");
-
-                try
-                {
-                    new NotificationActions().showNotification("Utworzono nowy plik");
-                }
-
-                catch (AWTException e)
-                {
-                    e.printStackTrace();
-                }
-            }
-        });
-
         openButton = new JButton(Resources.imageOpen);
+        openButton.setToolTipText("Kliknij aby otworzyć utworzony wcześniej plik");
         openButton.addActionListener(this);
 
         saveButton = new JButton(Resources.imageSave);
+        saveButton.setToolTipText("Zapisz plik");
         saveButton.addActionListener(this);
 
         printButton = new JButton(Resources.imagePrint);
+        printButton.setToolTipText("Wydrukuj swoją pracę");
         printButton.addActionListener(new ActionListener()
         {
             @Override
@@ -481,6 +457,7 @@ public class TextEditor extends JFrame implements ActionListener, Resources
         });
 
         insertImageButton = new JButton(Resources.imageInsertImage);
+        insertImageButton.setToolTipText("Wstaw obraz");
         insertImageButton.addActionListener(new ActionListener()
         {
             @Override
@@ -490,7 +467,6 @@ public class TextEditor extends JFrame implements ActionListener, Resources
             }
         });
 
-        panelUp.add(newButton);
         panelUp.add(openButton);
         panelUp.add(saveButton);
         panelUp.add(printButton);
@@ -498,6 +474,7 @@ public class TextEditor extends JFrame implements ActionListener, Resources
         panelUp.add(insertImageButton);
 
         boldButton = new JButton(Resources.boldImage);
+        boldButton.setToolTipText("Wytłuszczenie tekstu");
         boldButton.addActionListener(new ActionListener()
         {
             @Override
@@ -519,6 +496,7 @@ public class TextEditor extends JFrame implements ActionListener, Resources
         });
 
         cursiveButton = new JButton(Resources.italicImage);
+        cursiveButton.setToolTipText("Kursywa");
         cursiveButton.addActionListener(new ActionListener()
         {
             @Override
@@ -530,6 +508,7 @@ public class TextEditor extends JFrame implements ActionListener, Resources
         });
 
         underlineButton = new JButton(Resources.underlineImage);
+        underlineButton.setToolTipText("Podkreśl");
         underlineButton.addActionListener(new ActionListener()
         {
             @Override
@@ -540,10 +519,12 @@ public class TextEditor extends JFrame implements ActionListener, Resources
         });
 
         fontColorButton = new JButton();
+        fontColorButton.setToolTipText("Zmień kolor czcionki");
         fontColorButton.setText("Kolor");
         fontColorButton.addActionListener(this);
 
         alignLeftButton = new JButton(Resources.alignLeftImage);
+        alignLeftButton.setToolTipText("Wyrównaj do lewej");
         alignLeftButton.addActionListener(new ActionListener()
         {
             @Override
@@ -555,6 +536,7 @@ public class TextEditor extends JFrame implements ActionListener, Resources
         });
 
         alignCenterButton = new JButton(Resources.alignCenterImage);
+        alignCenterButton.setToolTipText("Wyśrodkuj");
         alignCenterButton.addActionListener(new ActionListener()
         {
             @Override
@@ -566,6 +548,7 @@ public class TextEditor extends JFrame implements ActionListener, Resources
         });
 
         justifyButton = new JButton(Resources.jutifyImage);
+        justifyButton.setToolTipText("Wyjustuj");
         justifyButton.addActionListener(new ActionListener()
         {
             @Override
@@ -576,8 +559,9 @@ public class TextEditor extends JFrame implements ActionListener, Resources
             }
         });
 
-        allignRightButton = new JButton(Resources.alignRightImage);
-        allignRightButton.addActionListener(new ActionListener()
+        alignRightButton = new JButton(Resources.alignRightImage);
+        alignRightButton.setToolTipText("Wyrównaj do prawej");
+        alignRightButton.addActionListener(new ActionListener()
         {
             @Override
             public void actionPerformed(ActionEvent e)
@@ -601,15 +585,14 @@ public class TextEditor extends JFrame implements ActionListener, Resources
         panelUp.add(alignLeftButton);
         panelUp.add(alignCenterButton);
         panelUp.add(justifyButton);
-        panelUp.add(allignRightButton);
+        panelUp.add(alignRightButton);
 
         mainPanel = new JPanel();
         mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.PAGE_AXIS));
         mainPanel.add(panelUp);
-        mainPanel.add(panelUp);
 
         frame.add(mainPanel,BorderLayout.NORTH);
-        frame.add(scrollPanel,BorderLayout.CENTER);
+        //frame.add(scrollPanel,BorderLayout.CENTER);
 
         frame.pack();
         frame.setVisible(true);

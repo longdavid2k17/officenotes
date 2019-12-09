@@ -25,6 +25,7 @@ public class EditorActions
     void drawImage(JFrame framePointer, JTextPane textPanePointer)
     {
         imageDialog = new JFileChooser();
+        imageDialog.setDialogTitle("Wstaw obraz");
         FileNameExtensionFilter imageExtension = new FileNameExtensionFilter("Obraz", "jpg","png","raw");
         imageDialog.addChoosableFileFilter(imageExtension);
         if (imageDialog.showOpenDialog(framePointer) == JFileChooser.APPROVE_OPTION)
