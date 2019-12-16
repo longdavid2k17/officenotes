@@ -1,13 +1,12 @@
-import Charts.ChartsEditor;
+import Forms.Find;
+import Forms.FindAndReplace;
 import Interfaces.Resources;
 
 import javax.swing.*;
 import javax.swing.event.UndoableEditEvent;
 import javax.swing.event.UndoableEditListener;
 import javax.swing.filechooser.FileNameExtensionFilter;
-import javax.swing.text.SimpleAttributeSet;
-import javax.swing.text.StyleConstants;
-import javax.swing.text.StyledEditorKit;
+import javax.swing.text.*;
 import javax.swing.undo.CannotRedoException;
 import javax.swing.undo.UndoManager;
 import java.awt.*;
@@ -75,19 +74,21 @@ public class TextEditor extends JFrame implements ActionListener, Resources
         frame.setLocationRelativeTo(null);
         frame.setIconImage(Resources.mainIcon.getImage());
 
+
         textPane = new JTextPane();
+        textPane.setMargin(new Insets(10,30,10,30));
         textPane.setBounds(300,0,400,800);
+
         scrollPanel = new JScrollPane(textPane);
-        scrollPanel.setPreferredSize(new Dimension(400,800));
+        scrollPanel.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+        scrollPanel.setViewportView(textPane);
 
         SimpleAttributeSet attr = new SimpleAttributeSet();
         StyleConstants.setFontSize(attr,Resources.DEFAULT_FONT_SIZE);
         textPane.setCharacterAttributes(attr, false);
         spacerLeftPanel = new JPanel();
         spacerRightPanel = new JPanel();
-        spacerLeftPanel.setPreferredSize(new Dimension(300,800));
-        spacerRightPanel.setPreferredSize(new Dimension(300,800));
-
+        actions.resizePane(spacerLeftPanel,spacerRightPanel,scrollPanel);
         frame.getContentPane().add(spacerLeftPanel,BorderLayout.LINE_START);
         frame.getContentPane().add(scrollPanel,BorderLayout.CENTER);
         frame.getContentPane().add(spacerRightPanel,BorderLayout.LINE_END);
@@ -147,14 +148,8 @@ public class TextEditor extends JFrame implements ActionListener, Resources
                 }
             }
         });
-        JMenuItem lastFilesItem = new JMenuItem("Ostatnio otwierane");
-        lastFilesItem.addActionListener(new ActionListener()
-        {
-            public void actionPerformed(ActionEvent ev)
-            {
+        JMenu lastFilesItem = new JMenu("Ostatnio otwierane");
 
-            }
-        });
         JMenuItem saveItem = new JMenuItem("Zapisz");
         saveItem.addActionListener(new ActionListener()
         {
@@ -319,7 +314,7 @@ public class TextEditor extends JFrame implements ActionListener, Resources
         {
             public void actionPerformed(ActionEvent ev)
             {
-                FindAndReplace findAndReplaceAction = new FindAndReplace();
+                FindAndReplace findAndReplaceAction = new FindAndReplace(textPane);
                 findAndReplaceAction.show();
             }
         });
@@ -348,15 +343,6 @@ public class TextEditor extends JFrame implements ActionListener, Resources
                 //System.out.println(imageCount);
             }
         });
-        JMenuItem graphItem = new JMenuItem("Wykres");
-        graphItem.addActionListener(new ActionListener()
-        {
-            @Override
-            public void actionPerformed(ActionEvent actionEvent)
-            {
-                new ChartsEditor();
-            }
-        });
         JMenuItem specialCharItem = new JMenuItem("Znak specjalny");
         specialCharItem.addActionListener(this);
 
@@ -371,7 +357,6 @@ public class TextEditor extends JFrame implements ActionListener, Resources
         });
 
         insertMenu.add(imageItem);
-        insertMenu.add(graphItem);
         insertMenu.add(tableItem);
         insertMenu.add(specialCharItem);
 

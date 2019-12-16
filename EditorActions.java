@@ -1,3 +1,4 @@
+import Interfaces.Resources;
 import com.lowagie.text.Document;
 import com.lowagie.text.DocumentException;
 import com.lowagie.text.Paragraph;
@@ -16,7 +17,7 @@ import java.awt.*;
 import java.io.*;
 import java.util.ArrayList;
 
-public class EditorActions
+public class EditorActions implements Resources
 {
     JFileChooser imageDialog;
     JFileChooser saveDialog;
@@ -84,6 +85,7 @@ public class EditorActions
                 try
                 {
                     XWPFDocument document = new XWPFDocument();
+                    saveFileURL(saveDialog.getSelectedFile());
                     FileOutputStream out = new FileOutputStream(new File(saveDialog.getSelectedFile().getPath()));
 
                     XWPFParagraph paragraph = document.createParagraph();
@@ -144,6 +146,7 @@ public class EditorActions
             Document document = new Document();
             try
             {
+                saveFileURL(file);
                 PdfWriter writer = PdfWriter.getInstance(document, new FileOutputStream(file.getAbsolutePath()));
                 document.open();
                 document.addCreationDate();
@@ -163,5 +166,73 @@ public class EditorActions
                 e.printStackTrace();
             }
         }
+    }
+    void resizePane(JPanel leftPanelPointer, JPanel rightPanelPointer, JScrollPane scrollPanePointer)
+    {
+        System.out.println(screenSize.getWidth()+" "+screenSize.getHeight());
+        if(screenSize.getWidth()==1366.0 && screenSize.getHeight()==768.0)
+        {
+            leftPanelPointer.setPreferredSize(new Dimension(278, 800));
+            leftPanelPointer.setMinimumSize(new Dimension(270, 800));
+            leftPanelPointer.setMaximumSize(new Dimension(280, 800));
+
+            rightPanelPointer.setPreferredSize(new Dimension(278, 800));
+            rightPanelPointer.setMinimumSize(new Dimension(270, 800));
+            rightPanelPointer.setMaximumSize(new Dimension(280, 800));
+
+            scrollPanePointer.setPreferredSize(new Dimension(810,800));
+            scrollPanePointer.setMinimumSize(new Dimension(805, 800));
+            scrollPanePointer.setMaximumSize(new Dimension(815, 800));
+        }
+        else if(screenSize.getWidth()==1600.0 && screenSize.getHeight()==900.0)
+        {
+            leftPanelPointer.setPreferredSize(new Dimension(320, 800));
+            leftPanelPointer.setMinimumSize(new Dimension(310, 800));
+            leftPanelPointer.setMaximumSize(new Dimension(330, 800));
+
+            rightPanelPointer.setPreferredSize(new Dimension(320, 800));
+            rightPanelPointer.setMinimumSize(new Dimension(310, 800));
+            rightPanelPointer.setMaximumSize(new Dimension(330, 800));
+
+            scrollPanePointer.setPreferredSize(new Dimension(960,800));
+            scrollPanePointer.setMinimumSize(new Dimension(950, 800));
+            scrollPanePointer.setMaximumSize(new Dimension(970, 800));
+        }
+        else if(screenSize.getWidth()==1920.0 && screenSize.getHeight()==1080.0)
+        {
+            leftPanelPointer.setPreferredSize(new Dimension(384, 800));
+            leftPanelPointer.setMinimumSize(new Dimension(380, 800));
+            leftPanelPointer.setMaximumSize(new Dimension(390, 800));
+
+            rightPanelPointer.setPreferredSize(new Dimension(384, 800));
+            rightPanelPointer.setMinimumSize(new Dimension(380, 800));
+            rightPanelPointer.setMaximumSize(new Dimension(390, 800));
+
+            scrollPanePointer.setPreferredSize(new Dimension(1152,800));
+            scrollPanePointer.setMinimumSize(new Dimension(1142, 800));
+            scrollPanePointer.setMaximumSize(new Dimension(1162, 800));
+        }
+    }
+    void saveFileURL(File file)
+    {
+        try (FileOutputStream fileOutputStream = new FileOutputStream(new File("files_urls.txt")))
+        {
+          BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(fileOutputStream));
+          writer.write(file.getAbsolutePath());
+          writer.close();
+        }
+        catch (FileNotFoundException e)
+        {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    String loadURL() throws IOException
+    {
+        BufferedReader reader = new BufferedReader(new FileReader("files_url.txt"));
+        String readedString = reader.readLine();
+        return readedString;
     }
 }
