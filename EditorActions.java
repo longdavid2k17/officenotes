@@ -69,7 +69,7 @@ public class EditorActions implements Resources
             textPanePointer.insertIcon(afterScale);
         }
     }
-    void save(JFrame framePointer, JTextPane textPanePointer)
+    void save(JFrame framePointer, JTextPane textPanePointer) throws IOException
     {
 
         saveDialog = new JFileChooser();
@@ -119,6 +119,7 @@ public class EditorActions implements Resources
                 //StyledDocument doc = (DefaultStyledDocument) textPanePointer.getDocument();
                 //StyledEditorKit kit = (StyledEditorKit) textPanePointer.getEditorKit();
                 File file = saveDialog.getSelectedFile();
+                saveFileURL(saveDialog.getSelectedFile());
                 try
                 {
                     BufferedWriter writer = new BufferedWriter(new FileWriter(file));
@@ -212,26 +213,50 @@ public class EditorActions implements Resources
             scrollPanePointer.setMinimumSize(new Dimension(1142, 800));
             scrollPanePointer.setMaximumSize(new Dimension(1162, 800));
         }
-    }
-    void saveFileURL(File file)
-    {
-        try (FileOutputStream fileOutputStream = new FileOutputStream(new File("files_urls.txt")))
+        else if(screenSize.getWidth()==2560.0 && screenSize.getHeight()==1080.0)
         {
-          BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(fileOutputStream));
-          writer.write(file.getAbsolutePath());
-          writer.close();
+            leftPanelPointer.setPreferredSize(new Dimension(512, 800));
+            leftPanelPointer.setMinimumSize(new Dimension(500, 800));
+            leftPanelPointer.setMaximumSize(new Dimension(522, 800));
+
+            rightPanelPointer.setPreferredSize(new Dimension(512, 800));
+            rightPanelPointer.setMinimumSize(new Dimension(500, 800));
+            rightPanelPointer.setMaximumSize(new Dimension(522, 800));
+
+            scrollPanePointer.setPreferredSize(new Dimension(1536,800));
+            scrollPanePointer.setMinimumSize(new Dimension(1500, 800));
+            scrollPanePointer.setMaximumSize(new Dimension(1550, 800));
         }
-        catch (FileNotFoundException e)
+    }
+    void saveFileURL(File file) throws IOException
+    {
+        File instance = new File("src/files_urls.txt");
+        FileWriter fr = null;
+        try
+        {
+            fr = new FileWriter(instance,true);
+            fr.write(file.getAbsolutePath()+"\n");
+        }
+        catch (IOException e)
         {
             e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
+        }
+        finally
+        {
+            try
+            {
+                fr.close();
+            }
+            catch (IOException e)
+            {
+                e.printStackTrace();
+            }
         }
     }
 
     String loadURL() throws IOException
     {
-        BufferedReader reader = new BufferedReader(new FileReader("files_url.txt"));
+        BufferedReader reader = new BufferedReader(new FileReader("src/files_urls.txt"));
         String readedString = reader.readLine();
         return readedString;
     }

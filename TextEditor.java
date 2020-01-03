@@ -13,7 +13,9 @@ import java.awt.*;
 import java.awt.event.*;
 import java.awt.print.*;
 import java.io.*;
+import java.net.URL;
 import java.util.ArrayList;
+import java.util.Scanner;
 import java.util.Vector;
 
 public class TextEditor extends JFrame implements ActionListener, Resources
@@ -70,7 +72,7 @@ public class TextEditor extends JFrame implements ActionListener, Resources
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setSize(Resources.screenSize.width,Resources.screenSize.height-30);
         frame.validate();
-        frame.setBackground(Color.lightGray);
+        frame.getContentPane().setBackground(Color.lightGray);
         frame.setLocationRelativeTo(null);
         frame.setIconImage(Resources.mainIcon.getImage());
 
@@ -150,6 +152,58 @@ public class TextEditor extends JFrame implements ActionListener, Resources
         });
         JMenu lastFilesItem = new JMenu("Ostatnio otwierane");
 
+        File loadPathFiles = new File("src/files_urls.txt");
+        ArrayList<String> tempList = new ArrayList<String>();
+        if(loadPathFiles.exists())
+        {
+            System.out.println("File exists");
+            try
+            {
+                Scanner scanner = new Scanner(loadPathFiles);
+                while(scanner.hasNextLine())
+                {
+                    tempList.add(scanner.nextLine());
+                }
+                System.out.println(tempList.size());
+                scanner.close();
+            }
+            catch (FileNotFoundException e)
+            {
+                System.out.println("Cannot read URLs");
+                e.printStackTrace();
+            }
+        }
+        else
+        {
+            System.out.println("File is not exists");
+        }
+
+
+        for(int i=0;i<tempList.size();i++)
+        {
+            String tempString = tempList.get(i);
+            JMenuItem itemPaths = new JMenuItem(tempString);
+            itemPaths.addActionListener(new ActionListener()
+            {
+                @Override
+                public void actionPerformed(ActionEvent e)
+                {
+                    String path = itemPaths.getText();
+                    File tempFile = new File(path);
+                    if(tempFile.exists())
+                    {
+                        new TextEditor(tempFile);
+                    }
+                    else
+                        JOptionPane.showMessageDialog(frame,"Plik został usunięty albo przeniesiony!","Błąd",JOptionPane.ERROR_MESSAGE);
+
+
+                }
+            });
+            lastFilesItem.add(itemPaths);
+            frame.repaint();
+        }
+
         JMenuItem saveItem = new JMenuItem("Zapisz");
         saveItem.addActionListener(new ActionListener()
         {
@@ -169,7 +223,14 @@ public class TextEditor extends JFrame implements ActionListener, Resources
         {
             public void actionPerformed(ActionEvent ev)
             {
-                actions.save(frame,textPane);
+                try
+                {
+                    actions.save(frame,textPane);
+                }
+                catch (IOException e)
+                {
+                    e.printStackTrace();
+                }
             }
         });
         KeyStroke normalSave = KeyStroke.getKeyStroke(KeyEvent.VK_S, KeyEvent.CTRL_DOWN_MASK);
@@ -344,7 +405,21 @@ public class TextEditor extends JFrame implements ActionListener, Resources
             }
         });
         JMenuItem specialCharItem = new JMenuItem("Znak specjalny");
-        specialCharItem.addActionListener(this);
+        specialCharItem.addActionListener(new ActionListener()
+        {
+            @Override
+            public void actionPerformed(ActionEvent e)
+            {
+                try
+                {
+                    Runtime.getRuntime().exec("C:\\WINDOWS\\system32\\charmap.exe");
+                }
+                catch (IOException e1)
+                {
+                    e1.printStackTrace();
+                }
+            }
+        });
 
         JMenuItem tableItem = new JMenuItem("Tabelka");
         tableItem.addActionListener(new ActionListener()
@@ -465,18 +540,19 @@ public class TextEditor extends JFrame implements ActionListener, Resources
             @Override
             public void actionPerformed(ActionEvent actionEvent)
             {
-                if(isBold==false)
+                StyledDocument doc = (StyledDocument) textPane.getDocument();
+                int selectionEnding = textPane.getSelectionEnd();
+                int selectionStart = textPane.getSelectionStart();
+                if (selectionStart == selectionEnding)
                 {
-                    StyleConstants.setBold(attr,true);
-                    textPane.setParagraphAttributes(attr,true);
-                    isBold=true;
+                    return;
                 }
-                if(isBold==true)
-                {
-                    StyleConstants.setBold(attr,false);
-                    textPane.setParagraphAttributes(attr,true);
-                    isBold=false;
-                }
+                Element element = doc.getCharacterElement(selectionStart);
+                AttributeSet as = element.getAttributes();
+
+                MutableAttributeSet asNew = new SimpleAttributeSet(as.copyAttributes());
+                StyleConstants.setBold(asNew, !StyleConstants.isBold(as));
+                doc.setCharacterAttributes(selectionStart, textPane.getSelectedText().length(), asNew, true);
             }
         });
 
@@ -487,8 +563,21 @@ public class TextEditor extends JFrame implements ActionListener, Resources
             @Override
             public void actionPerformed(ActionEvent actionEvent)
             {
-                StyleConstants.setItalic(attr,true);
-                textPane.setParagraphAttributes(attr,true);
+               /* StyleConstants.setItalic(attr,true);
+                textPane.setParagraphAttributes(attr,true);*/
+                StyledDocument doc = (StyledDocument) textPane.getDocument();
+                int selectionEnding = textPane.getSelectionEnd();
+                int selectionStart = textPane.getSelectionStart();
+                if (selectionStart == selectionEnding)
+                {
+                    return;
+                }
+                Element element = doc.getCharacterElement(selectionStart);
+                AttributeSet as = element.getAttributes();
+
+                MutableAttributeSet asNew = new SimpleAttributeSet(as.copyAttributes());
+                StyleConstants.setItalic(asNew, !StyleConstants.isItalic(as));
+                doc.setCharacterAttributes(selectionStart, textPane.getSelectedText().length(), asNew, true);
             }
         });
 
@@ -499,7 +588,19 @@ public class TextEditor extends JFrame implements ActionListener, Resources
             @Override
             public void actionPerformed(ActionEvent actionEvent)
             {
+                StyledDocument doc = (StyledDocument) textPane.getDocument();
+                int selectionEnding = textPane.getSelectionEnd();
+                int selectionStart = textPane.getSelectionStart();
+                if (selectionStart == selectionEnding)
+                {
+                    return;
+                }
+                Element element = doc.getCharacterElement(selectionStart);
+                AttributeSet as = element.getAttributes();
 
+                MutableAttributeSet asNew = new SimpleAttributeSet(as.copyAttributes());
+                StyleConstants.setUnderline(asNew, !StyleConstants.isUnderline(as));
+                doc.setCharacterAttributes(selectionStart, textPane.getSelectedText().length(), asNew, true);
             }
         });
 
@@ -638,6 +739,7 @@ public class TextEditor extends JFrame implements ActionListener, Resources
             fontColorButton.setBackground(initialcolor);
             fontColorButton.setForeground(Color.BLACK);
         }
+
     }
     private class FontFamilyItemListener implements ItemListener
     {

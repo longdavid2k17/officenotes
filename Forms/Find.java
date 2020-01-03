@@ -76,7 +76,7 @@ public class Find extends JDialog
 
     private void onOK() throws BadLocationException {
         String text = textPane.getText();
-        System.out.println(text);
+        //System.out.println(text);
 
         Scanner input = new Scanner(text).useDelimiter(" ");
         ArrayList<String> lista = new ArrayList<String>();

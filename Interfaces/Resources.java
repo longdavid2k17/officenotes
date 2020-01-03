@@ -15,22 +15,21 @@ public interface Resources
        String howToUseText = "Na szczycie okna znajduje się menu obsługi programu - możesz tam utworzyć nowy plik, otworzyć inny plik, zapisać, wydrukować etc.\n" +
         "Ikony najważniejszych funkcji znajdują się pod menu.\n" +
         "Wybierz następnie swoją ulubioną czcionkę, kolor i wpadnij w wir kreatywnej pracy pisarza!";
+
     Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
 
-    ImageIcon imageNew = new ImageIcon("src/images/icons8-new-document-50.png");
-    ImageIcon imageTable = new ImageIcon("src/images/icons8-table-50.png");
-    ImageIcon imageOpen = new ImageIcon("src/images/icons8-open-document-50.png");
-    ImageIcon imageSave = new ImageIcon("src/images/icons8-save-50.png");
-    ImageIcon imagePrint = new ImageIcon("src/images/icons8-print-50.png");
-    ImageIcon imageInsertImage = new ImageIcon("src/images/icons8-full-image-50.png");
-    ImageIcon boldImage = new ImageIcon("src/images/icons8-bold-50.png");
-    ImageIcon italicImage = new ImageIcon("src/images/icons8-italic-50.png");
-    ImageIcon underlineImage = new ImageIcon("src/images/icons8-underline-50.png");
-    ImageIcon alignLeftImage = new ImageIcon("src/images/icons8-align-left-50.png");
-    ImageIcon alignCenterImage = new ImageIcon("src/images/icons8-align-center-50.png");
-    ImageIcon jutifyImage = new ImageIcon("src/images/icons8-align-justify-50.png");
-    ImageIcon alignRightImage = new ImageIcon("src/images/icons8-align-right-50.png");
-    ImageIcon areaChart = new ImageIcon("src/images/icons8-area-chart-50.png");
+    ImageIcon imageTable = new ImageIcon(Resources.class.getResource("/images/icons8-table-50.png"));
+    ImageIcon imageOpen = new ImageIcon(Resources.class.getResource("/images/icons8-open-document-50.png"));
+    ImageIcon imageSave = new ImageIcon(Resources.class.getResource("/images/icons8-save-50.png"));
+    ImageIcon imagePrint = new ImageIcon(Resources.class.getResource("/images/icons8-print-50.png"));
+    ImageIcon imageInsertImage = new ImageIcon(Resources.class.getResource("/images/icons8-full-image-50.png"));
+    ImageIcon boldImage = new ImageIcon(Resources.class.getResource("/images/icons8-bold-50.png"));
+    ImageIcon italicImage = new ImageIcon(Resources.class.getResource("/images/icons8-italic-50.png"));
+    ImageIcon underlineImage = new ImageIcon(Resources.class.getResource("/images/icons8-underline-50.png"));
+    ImageIcon alignLeftImage = new ImageIcon(Resources.class.getResource("/images/icons8-align-left-50.png"));
+    ImageIcon alignCenterImage = new ImageIcon(Resources.class.getResource("/images/icons8-align-center-50.png"));
+    ImageIcon jutifyImage = new ImageIcon(Resources.class.getResource("/images/icons8-align-justify-50.png"));
+    ImageIcon alignRightImage = new ImageIcon(Resources.class.getResource("/images/icons8-align-right-50.png"));
 
-    ImageIcon mainIcon = new ImageIcon("src/images/app_icon.png");
+    ImageIcon mainIcon = new ImageIcon(Resources.class.getResource("/images/app_icon.png"));
 }

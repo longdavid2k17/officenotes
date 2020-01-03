@@ -8,6 +8,7 @@ import java.awt.*;
 import java.awt.event.*;
 import java.util.ArrayList;
 import java.util.Scanner;
+import java.util.concurrent.ExecutionException;
 
 public class FindAndReplace extends JDialog
 {
@@ -73,9 +74,10 @@ public class FindAndReplace extends JDialog
     }
     void setSearchedString()
     {
-        if(textField1.getText().length()>0)
+        if(textField2.getText().length()>0)
         {
-            searchedString = textField1.getText();
+            searchedString = textField2.getText();
+            System.out.println("Poszukiwana fraza: "+searchedString);
         }
         else
             JOptionPane.showMessageDialog(this,"Błąd wprowadzania danych","Błąd",JOptionPane.ERROR_MESSAGE);
@@ -83,9 +85,10 @@ public class FindAndReplace extends JDialog
 
     void setReplacedString()
     {
-        if(textField2.getText().length()>0)
+        if(textField1.getText().length()>0)
         {
-            replacedString = textField2.getText();
+            replacedString = textField1.getText();
+            System.out.println("Zastąpiona przez : "+replacedString);
         }
         else
             JOptionPane.showMessageDialog(this,"Błąd wprowadzania danych","Błąd",JOptionPane.ERROR_MESSAGE);
@@ -101,10 +104,9 @@ public class FindAndReplace extends JDialog
         dispose();
     }
 
-    private void onOK() throws BadLocationException {
+    private void onOK() throws BadLocationException
+    {
         String text = textPane.getText();
-        System.out.println(text);
-
         Scanner input = new Scanner(text).useDelimiter(" ");
         ArrayList<String> lista = new ArrayList<String>();
         while(input.hasNext())
@@ -113,16 +115,25 @@ public class FindAndReplace extends JDialog
         }
         input.close();
 
-        for(String a: lista)
+        System.out.println(lista);
+
+        StringBuilder sb = new StringBuilder();
+        for(int i=0;i<lista.size();i++)
         {
-            if(a.contains(searchedString))
+            String searchTempVar = lista.get(i);
+
+            if(searchTempVar.contains(searchedString))
             {
                 counter++;
-                a.replace(searchedString,replacedString);
+                System.out.println("Indeks słowa : " + i);
+                lista.set(i, replacedString);
             }
-            a.replace(searchedString,replacedString);
+            sb.append(lista.get(i).toString()+" ");
+
         }
-        JOptionPane.showMessageDialog(this,"Wyraz pojawił się "+counter+" raz/y","Wyniki wyszukiwania",JOptionPane.INFORMATION_MESSAGE);
+        textPane.setText(sb.toString());
+
+        JOptionPane.showMessageDialog(this,"Wyraz pojawił się "+counter+" raz/y i tyle samo razy go zamieniono.","Wyniki wyszukiwania",JOptionPane.INFORMATION_MESSAGE);
         dispose();
     }
 }
