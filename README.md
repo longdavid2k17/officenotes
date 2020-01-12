@@ -1,7 +1,9 @@
-# officenotes ®
+# opendocs ®
 Free and advanced document editor, kinda OpenOffice, MS Word and all of this stuff. No need to pay, no more nonintuitial menu bars (ofc it's very personal point of view). It's less memorytaking than OpenOffice, more advanced than notepad, and free in oposite of MS Word.
 
 IMPORTANT - SOFTWARE IN DEVELOPMENT. STILL SOME FEATURES COULD NOT WORK!
+
+PS: First production name was OfficeNotes but the name was too similar to MS product
 
 # Prerequisites
 You don't need to install external software, all you need is JAVA ;)

@@ -18,6 +18,9 @@ import java.util.ArrayList;
 import java.util.Scanner;
 import java.util.Vector;
 
+/**
+ * @author Dawid Kańtoch
+ */
 public class TextEditor extends JFrame implements ActionListener, Resources
 {
     File actualFile = null;
@@ -32,18 +35,24 @@ public class TextEditor extends JFrame implements ActionListener, Resources
     private JTextPane textPane;
     private JComboBox fontSizes, fontFamilyCmbBox;
     private String fileName;
-    private boolean isBold = false;
     JMenu fileMenu, editMenu, insertMenu, helpMenu;
     JMenuBar menuBar;
     protected UndoManager undoManager;
     static ArrayList<String> imageAdressArray;
     static ArrayList<String> imageNameArray;
-    private int imageCount=0;
 
+    /**
+     * Konstruktor domyślny bezargumentowy tworzący domyślny widok dla nowego dokumentu
+     */
     TextEditor()
     {
         createUI();
     }
+
+    /**
+     * Konstruktor argumentowy otwierający istniejący plik
+     * @param file
+     */
     TextEditor(File file)
     {
         createUI();
@@ -62,6 +71,9 @@ public class TextEditor extends JFrame implements ActionListener, Resources
         }
     }
 
+    /**
+     * metoda tworząca UserInterface
+     */
     private void createUI()
     {
         EditorActions actions = new EditorActions();
@@ -70,6 +82,36 @@ public class TextEditor extends JFrame implements ActionListener, Resources
         frame.setTitle("OfficeNotes");
         frame.setResizable(true);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent e)
+            {
+                String tempString = textPane.getText();
+                if (!tempString.isEmpty())
+                {
+                    int confirmed = JOptionPane.showConfirmDialog(null,
+                            "Czy chcesz zapisać swój plik?", "Zapisz pracę", JOptionPane.YES_NO_OPTION);
+
+                    if (confirmed == JOptionPane.NO_OPTION)
+                    {
+                        dispose();
+                    }
+                    else
+                    {
+                        try
+                        {
+                            actions.save(frame, textPane);
+                        }
+                        catch (IOException e1)
+                        {
+                            e1.printStackTrace();
+                        }
+                    }
+                }
+                else
+                    super.windowClosing(e);
+            }
+        });
         frame.setSize(Resources.screenSize.width,Resources.screenSize.height-30);
         frame.validate();
         frame.getContentPane().setBackground(Color.lightGray);
@@ -78,6 +120,7 @@ public class TextEditor extends JFrame implements ActionListener, Resources
 
 
         textPane = new JTextPane();
+        textPane.setSize(100,800);
         textPane.setMargin(new Insets(10,30,10,30));
         textPane.setBounds(300,0,400,800);
 
@@ -196,8 +239,6 @@ public class TextEditor extends JFrame implements ActionListener, Resources
                     }
                     else
                         JOptionPane.showMessageDialog(frame,"Plik został usunięty albo przeniesiony!","Błąd",JOptionPane.ERROR_MESSAGE);
-
-
                 }
             });
             lastFilesItem.add(itemPaths);
@@ -211,9 +252,21 @@ public class TextEditor extends JFrame implements ActionListener, Resources
             {
                 if(actualFile!=null)
                 {
-                    ////here to quick save
+                    actions.saveProgress(actualFile, textPane);
+                    ////jeżeli dokument został otwarty z jakiegoś pliku, to go nadpisuje, jeżeli nie
+                    ////to zapisuje jako nowy plik
                 }
-                else return;
+                else
+                {
+                    try
+                    {
+                        actions.save(frame,textPane);
+                    }
+                    catch (IOException e)
+                    {
+                        e.printStackTrace();
+                    }
+                }
             }
         });
         ///KeyStroke quickSave = KeyStroke.getKeyStroke(KeyEvent.VK_S, KeyEvent.CTRL_DOWN_MASK);
@@ -400,8 +453,6 @@ public class TextEditor extends JFrame implements ActionListener, Resources
             public void actionPerformed(ActionEvent e)
             {
                 actions.drawImage(frame,textPane);
-                imageCount++;
-                //System.out.println(imageCount);
             }
         });
         JMenuItem specialCharItem = new JMenuItem("Znak specjalny");
@@ -678,17 +729,19 @@ public class TextEditor extends JFrame implements ActionListener, Resources
         mainPanel.add(panelUp);
 
         frame.add(mainPanel,BorderLayout.NORTH);
-        //frame.add(scrollPanel,BorderLayout.CENTER);
 
         frame.pack();
         frame.setVisible(true);
     }
 
+    /**
+     * metoda pobierająca czcionki dostępne w systemie
+     * @return lista czcionek
+     */
     private Vector<String> getEditorFonts()
     {
         String [] availableFonts = GraphicsEnvironment.getLocalGraphicsEnvironment().getAvailableFontFamilyNames();
         Vector<String> returnList = new Vector<>();
-
         for (String font : availableFonts)
         {
                 returnList.add(font);
@@ -696,6 +749,10 @@ public class TextEditor extends JFrame implements ActionListener, Resources
         return returnList;
     }
 
+    /**
+     * metoda obsługująca reakcje aplikacji dla kilku buttonów
+     * @param e
+     */
     @Override
     public void actionPerformed(ActionEvent e)
     {
@@ -703,27 +760,33 @@ public class TextEditor extends JFrame implements ActionListener, Resources
 
         if(source==openButton)
         {
-            fileOpener = new JFileChooser();
-            FileNameExtensionFilter fileExtensionFilter = new FileNameExtensionFilter("Pliki tekstowe", "txt","doc","docs","odt","wpd");
-            fileOpener.addChoosableFileFilter(fileExtensionFilter);
-            fileOpener.setDialogTitle("Wybierz plik do otwarcia");
-            int returnValue = fileOpener.showOpenDialog(null);
-            if(returnValue == JFileChooser.APPROVE_OPTION)
-            {
-                fileName=fileOpener.getSelectedFile().getAbsolutePath();
-                try
+                fileOpener = new JFileChooser();
+                FileNameExtensionFilter fileExtensionFilter = new FileNameExtensionFilter("Pliki tekstowe", "txt", "doc", "docs", "odt", "wpd");
+                fileOpener.addChoosableFileFilter(fileExtensionFilter);
+                fileOpener.setDialogTitle("Wybierz plik do otwarcia");
+                int returnValue = fileOpener.showOpenDialog(null);
+                if (returnValue == JFileChooser.APPROVE_OPTION)
                 {
-                    FileReader reader = new FileReader(fileName);
-                    BufferedReader bufferedReader = new BufferedReader(reader);
-                    textPane.read(bufferedReader,null);
-                    bufferedReader.close();
-                    textPane.requestFocus();
+                    String tempString  = textPane.getText();
+                    if(tempString.isEmpty())
+                    {
+                        fileName = fileOpener.getSelectedFile().getAbsolutePath();
+                        try
+                        {
+                            FileReader reader = new FileReader(fileName);
+                            BufferedReader bufferedReader = new BufferedReader(reader);
+                            textPane.read(bufferedReader, null);
+                            bufferedReader.close();
+                            textPane.requestFocus();
+                        }
+                        catch (Exception error)
+                        {
+                            JOptionPane.showMessageDialog(null, error);
+                        }
+                    }
+                    else
+                        new TextEditor(fileOpener.getSelectedFile());
                 }
-                catch (Exception error)
-                {
-                   JOptionPane.showMessageDialog(null,error);
-                }
-            }
         }
         if(source==fontColorButton)
         {
@@ -739,8 +802,11 @@ public class TextEditor extends JFrame implements ActionListener, Resources
             fontColorButton.setBackground(initialcolor);
             fontColorButton.setForeground(Color.BLACK);
         }
-
     }
+
+    /**
+     * ustawia wybraną czcionkę dla tekstu
+     */
     private class FontFamilyItemListener implements ItemListener
     {
         @Override

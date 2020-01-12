@@ -17,12 +17,32 @@ import java.awt.*;
 import java.io.*;
 import java.util.ArrayList;
 
+/**
+ * @author Dawid Kańtoch
+ * klasa działań dla klasy TextEditor
+ */
 public class EditorActions implements Resources
 {
+    /**
+     * okno dialogowe dla wstawiania obrazu
+     */
     JFileChooser imageDialog;
+    /**
+     * okno dialogowe dla zapisu dokumentów
+     */
     JFileChooser saveDialog;
+    /**
+     * okno dialogowe dla zapisu dokumentów jako PDF
+     */
     JFileChooser saveAsPDFDialog;
 
+    /**
+     * metoda wstawiająca wybrany obraz do textPane
+     * @param framePointer
+     *          wskaźnik na okno główne
+     * @param textPanePointer
+     *          wskaźnik na textPane
+     */
     void drawImage(JFrame framePointer, JTextPane textPanePointer)
     {
         imageDialog = new JFileChooser();
@@ -69,9 +89,17 @@ public class EditorActions implements Resources
             textPanePointer.insertIcon(afterScale);
         }
     }
+
+    /**
+     * metoda zapisująca tekst z textPane do pliku i lokalizacji wskazanej przez użytkownika
+     * @param framePointer
+     *          wskaźnik na okno główne
+     * @param textPanePointer
+     *          wskaźnik na textPane
+     * @throws IOException
+     */
     void save(JFrame framePointer, JTextPane textPanePointer) throws IOException
     {
-
         saveDialog = new JFileChooser();
         saveDialog.setDialogTitle("Zapisz jako");
         FileNameExtensionFilter textExtenensions = new FileNameExtensionFilter("Pliki tekstowe", "txt");
@@ -112,20 +140,15 @@ public class EditorActions implements Resources
                 {
                     e.printStackTrace();
                 }
-                /////tu zapis do worda
             }
             else
             {
-                //StyledDocument doc = (DefaultStyledDocument) textPanePointer.getDocument();
-                //StyledEditorKit kit = (StyledEditorKit) textPanePointer.getEditorKit();
                 File file = saveDialog.getSelectedFile();
                 saveFileURL(saveDialog.getSelectedFile());
                 try
                 {
                     BufferedWriter writer = new BufferedWriter(new FileWriter(file));
-                    //BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(file));
                     writer.write(textPanePointer.getText());
-                    //kit.write(out, doc, 0, doc.getLength());
                     writer.close();
                 }
                 catch (IOException  e)
@@ -135,6 +158,36 @@ public class EditorActions implements Resources
             }
         }
     }
+
+    /**
+     * metoda obsługująca szybki zapis wcześniej utworzonego pliku, albo zapisująca dokument
+     * jako nowy plik jeśli wcześniej nie istniał
+     * @param file
+     *          przekazywany plik
+     * @param textPanePointer
+     *          wskaźnik na textPane
+     */
+    void saveProgress(File file,JTextPane textPanePointer)
+    {
+        try
+        {
+            BufferedWriter writer = new BufferedWriter(new FileWriter(file));
+            writer.write(textPanePointer.getText());
+            writer.close();
+        }
+        catch (IOException  e)
+        {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * metoda obsługująca zapis do pliku jako PDF
+     * @param framePointer
+     *          wskaźnik na okno główne
+     * @param textPanePointer
+     *          wskaźnik na textPane
+     */
     void saveAsPDF(JFrame framePointer, JTextPane textPanePointer)
     {
         saveAsPDFDialog = new JFileChooser();
@@ -168,6 +221,16 @@ public class EditorActions implements Resources
             }
         }
     }
+
+    /**
+     * metoda obsługująca dostosowywanie rozmiarów JPaneli do rozdzielczości wyświetlacza
+     * @param leftPanelPointer
+     *          wskaźnik na lewy panel
+     * @param rightPanelPointer
+     *          wskaźnik na prawy panel
+     * @param scrollPanePointer
+     *          wskaźnik na scroll panel
+     */
     void resizePane(JPanel leftPanelPointer, JPanel rightPanelPointer, JScrollPane scrollPanePointer)
     {
         System.out.println(screenSize.getWidth()+" "+screenSize.getHeight());
@@ -228,6 +291,13 @@ public class EditorActions implements Resources
             scrollPanePointer.setMaximumSize(new Dimension(1550, 800));
         }
     }
+
+    /**
+     * metoda zapisująca lokalizację plików na których działano wcześniej w programie
+     * @param file
+     *          przekazywany plik
+     * @throws IOException
+     */
     void saveFileURL(File file) throws IOException
     {
         File instance = new File("src/files_urls.txt");
@@ -254,6 +324,11 @@ public class EditorActions implements Resources
         }
     }
 
+    /**
+     * metoda wczytująca URL dokumentów z pliku
+     * @return
+     * @throws IOException
+     */
     String loadURL() throws IOException
     {
         BufferedReader reader = new BufferedReader(new FileReader("src/files_urls.txt"));

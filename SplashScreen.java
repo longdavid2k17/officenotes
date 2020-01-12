@@ -1,12 +1,16 @@
 import Interfaces.Resources;
-
-import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
 
-
+/**
+ * @author Dawid Kańtoch
+ * klasa SplashScreenu dla aplikacji
+ */
 public class SplashScreen extends JFrame implements Resources
 {
+    /**
+     * konstruktor bezargumentowy klasy z widokiem okna oraz przełączanie do okna TextEditora
+     */
     SplashScreen()
     {
         setSize(500,675);

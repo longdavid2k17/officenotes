@@ -4,6 +4,10 @@ import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
+/**
+ * @author Dawid Kańtoch
+ * klasa obsługująca dodawanie tabelek do TextPane
+ */
 public class Table extends JFrame
 {
     int columnCount;
@@ -13,6 +17,11 @@ public class Table extends JFrame
     JTextField columnField, rowField;
     JButton okButton, cancelButton;
 
+    /**
+     * konstruktor argumentowy
+     * @param pointer
+     *          wskaźnik na TextPane
+     */
     public Table(JTextPane pointer)
     {
         tableCreator = new JFrame();
@@ -76,15 +85,28 @@ public class Table extends JFrame
         });
         tableCreator.add(cancelButton);
     }
+
+    /**
+     *
+     * @return  zwraca ilość kolumn
+     */
     int getColumnCount()
     {
         return columnCount;
     }
 
+    /**
+     *
+     * @return zwraca ilość wierszy
+     */
     int getRowCount()
     {
         return rowCount;
     }
+
+    /**
+     * setter ilości kolumn
+     */
     void setColumnCount()
     {
         if(Integer.valueOf(columnField.getText())>0)
@@ -94,6 +116,10 @@ public class Table extends JFrame
         else
             columnCount = 0;
     }
+
+    /**
+     * setter ilości wierszy
+     */
     void setRowCount()
     {
         if(Integer.valueOf(rowField.getText())>0)

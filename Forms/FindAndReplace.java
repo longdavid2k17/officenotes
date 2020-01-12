@@ -10,6 +10,10 @@ import java.util.ArrayList;
 import java.util.Scanner;
 import java.util.concurrent.ExecutionException;
 
+/**
+ * @author Dawid Kańtoch
+ * klasa okna dialogowego Znajdź i zastąp
+ */
 public class FindAndReplace extends JDialog
 {
     private JTextField textField1;
@@ -21,6 +25,10 @@ public class FindAndReplace extends JDialog
     private JTextPane textPane;
     int counter;
 
+    /**
+     * Konstruktor argumentowy pobierający wskaźnik na TextPane
+     * @param pointer
+     */
     public FindAndReplace(JTextPane pointer)
     {
         setContentPane(mainPanel);
@@ -44,7 +52,6 @@ public class FindAndReplace extends JDialog
                 {
                     e1.printStackTrace();
                 }
-
             }
         });
 
@@ -63,7 +70,6 @@ public class FindAndReplace extends JDialog
             }
         });
 
-        // call onCancel() on ESCAPE
         mainPanel.registerKeyboardAction(new ActionListener()
         {
             public void actionPerformed(ActionEvent e)
@@ -72,6 +78,10 @@ public class FindAndReplace extends JDialog
             }
         }, KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
     }
+
+    /**
+     * ustawienie wartości dla pola searchedString
+     */
     void setSearchedString()
     {
         if(textField2.getText().length()>0)
@@ -83,6 +93,9 @@ public class FindAndReplace extends JDialog
             JOptionPane.showMessageDialog(this,"Błąd wprowadzania danych","Błąd",JOptionPane.ERROR_MESSAGE);
     }
 
+    /**
+     * metoda ustawiająca wartość dla pola replacedString
+     */
     void setReplacedString()
     {
         if(textField1.getText().length()>0)
@@ -94,16 +107,26 @@ public class FindAndReplace extends JDialog
             JOptionPane.showMessageDialog(this,"Błąd wprowadzania danych","Błąd",JOptionPane.ERROR_MESSAGE);
     }
 
+    /**
+     * metoda ustawiająca wskaźnik na textPane
+     * @param val
+     */
     private void setTextPane(JTextPane val)
     {
         textPane = val;
     }
 
+    /**
+     * reakcja dla anulowania działania okna
+     */
     private void onCancel()
     {
         dispose();
     }
 
+    /**
+     * reakcja dla potwierdzenia działania okna
+     */
     private void onOK() throws BadLocationException
     {
         String text = textPane.getText();
@@ -129,7 +152,6 @@ public class FindAndReplace extends JDialog
                 lista.set(i, replacedString);
             }
             sb.append(lista.get(i).toString()+" ");
-
         }
         textPane.setText(sb.toString());
 

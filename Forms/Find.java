@@ -11,6 +11,10 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.Scanner;
 
+/**
+ * @author Dawid Kańtoch
+ * klasa okna dialogowego Znajdź
+ */
 public class Find extends JDialog
 {
     private JPanel contentPane;
@@ -22,6 +26,10 @@ public class Find extends JDialog
 
     private String searchedString;
 
+    /**
+     * Konstruktor argumentowy pobierający wskaźnik na TextPane
+     * @param pointer
+     */
     public Find(JTextPane pointer)
     {
         setContentPane(contentPane);
@@ -30,7 +38,6 @@ public class Find extends JDialog
         setTitle("Znajdź frazę");
         setLocationRelativeTo(null);
         getRootPane().setDefaultButton(buttonOK);
-
         setTextPane(pointer);
 
         buttonOK.addActionListener(new ActionListener()
@@ -69,11 +76,18 @@ public class Find extends JDialog
         }, KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
     }
 
+    /**
+     * metoda ustawiająca wskaźnik na textPane
+     * @param val
+     */
     private void setTextPane(JTextPane val)
     {
         textPane = val;
     }
 
+    /**
+     * reakcja dla potwierdzenia działania okna
+     */
     private void onOK() throws BadLocationException {
         String text = textPane.getText();
         //System.out.println(text);
@@ -104,10 +118,17 @@ public class Find extends JDialog
         highlighter.addHighlight(p0, p1, painter );
     }
 
+    /**
+     * reakcja dla anulowania działania okna
+     */
     private void onCancel()
     {
         dispose();
     }
+
+    /**
+     * metoda dla pobrania i ustawienia wartości poszukiwanego stringa
+     */
     String getString()
     {
         return searchedString;
