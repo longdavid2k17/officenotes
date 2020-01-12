@@ -9,6 +9,7 @@ You don't need to install external software, all you need is JAVA. Link to the f
 # Getting Started
 After launching an app, splash screen is showed
 ![Splash Screen](https://raw.githubusercontent.com/longdavid2k17/opendocs/master/Screenshots/splashScreen.PNG)
+
 It's what main screen looks like.
 ![Main Window](https://raw.githubusercontent.com/longdavid2k17/opendocs/master/Screenshots/mainWindows.PNG)
 How you can see, controlling this software is easy and simple. Most used function are in the most common places (like File Menu).
