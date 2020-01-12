@@ -8,6 +8,8 @@ You don't need to install external software, all you need is JAVA. Link to the f
 
 # Getting Started
 After launching an app, splash screen is showed
+
+
 ![Splash Screen](https://raw.githubusercontent.com/longdavid2k17/opendocs/master/Screenshots/splashScreen.PNG)
 
 
